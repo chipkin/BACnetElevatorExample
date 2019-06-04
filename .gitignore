@@ -1,0 +1,10 @@
+
+bin/CASBACnetStack_x64_Debug\.dll
+
+bin/netcoreapp2\.1/
+
+BACnetElevatorExample/BACnetElevatorExample/obj/Debug/
+
+BACnetElevatorExample/BACnetElevatorExample/bin/
+
+BACnetElevatorExample/\.vs/
