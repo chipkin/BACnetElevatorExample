@@ -15,6 +15,9 @@ namespace BACnetElevatorExample
             bacnetServer.Run();
         }
 
+
+
+
         unsafe class BACnetServer
         {
             // UDP 
@@ -23,98 +26,14 @@ namespace BACnetElevatorExample
 
             // Settings 
             const UInt16 SETTING_BACNET_PORT = 47808;
-            const UInt32 SETTING_DEVICE_INSTANCE = 389001;
-            const string SETTING_DEVICE_NAME = "Elevator Example";
 
-
-
-            // Description of system. 
-            // 
-            // *-------------------* *------------------------------*
-            // |                   | |                              | 
-            // | |======| |======| | |                     *------* |           |======| 
-            // | |======| |======| | |                     |  E   | |           |======| 
-            // | |======| |======| | |                     | 2003 | |           |======| 
-            // | |======| |======| | | *------*  *------*  *------* | *------*  |======| 
-            // | |= A ==| |= B ==| | | |  C   |  |  D   |  |  F   | | |  G   |  |= H ==| 
-            // | | 1001 | | 1002 | | | | 2001 |  | 2002 |  | 2004 | | | 2005 |  | 1003 | 
-            // | |======| |======| | | *------*  *------|  *------* | *------*  |======| 
-            // |       1000        | |             2000             |     ^        ^
-            // *-------------------* *------------------------------*     |        |
-            //           ^                           ^         ^          |        \----- Single escalator without group
-            //           |                           |         |          \-------------- Single lift without group
-            //           |                           |         \------------------------- Double decker Lift
-            //           |                           \----------------------------------- Mulitple of lifts in a group
-            //           \--------------------------------------------------------------- Mulitple of escalator in a group
-            // 
-
-            // Two escalators 
-            // ----------------------------------------------------------------------------------
-            // ESCALATOR GROUP 
-            const UInt32 SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE = 1000;
-            const string SETTING_ELEVATOR_GROUP_OF_ESCALATOR_NAME = "ESCALATOR Group";
-            const UInt32 SETTING_ELEVATOR_GROUP_OF_ESCALATOR_MACHINE_ROOM_ID = 1;
-            const Byte SETTING_ELEVATOR_GROUP_OF_ESCALATOR_GROUP_ID = 1;
-            
-            // ESCALATOR A 
-            const UInt32 SETTING_ESCALATOR_A_INSTANCE = 1001;
-            const string SETTING_ESCALATOR_A_NAME = "Moving sidewalk (A)";
-            const Byte SETTING_ESCALATOR_A_INSTALLATION_ID = 1;
-
-            // ESCALATOR B
-            const UInt32 SETTING_ESCALATOR_B_INSTANCE = 1002;
-            const string SETTING_ESCALATOR_B_NAME = "Moving sidewalk (B)";
-            const Byte SETTING_ESCALATOR_B_INSTALLATION_ID = 1;
-
-
-            // Two independent lifs. 
-            // ----------------------------------------------------------------------------------
-            // LIFT GROUP 
-            const UInt32 SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE = 2000;
-            const string SETTING_ELEVATOR_GROUP_OF_LIFT_NAME = "LIFT Group";
-            const UInt32 SETTING_ELEVATOR_GROUP_OF_LIFT_MACHINE_ROOM_ID = 2;
-            const Byte SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID = 2;
-
-            // LIFT C
-            const UInt32 SETTING_LIFT_C_INSTANCE = 2001;
-            const string SETTING_LIFT_C_NAME = "People Lifter (C)";
-            const Byte SETTING_LIFT_C_INSTALLATION_ID = 2;
-
-            // LIFT D 
-            const UInt32 SETTING_LIFT_D_INSTANCE = 2002;
-            const string SETTING_LIFT_D_NAME = "People Lifter (D)";
-            const Byte SETTING_LIFT_D_INSTALLATION_ID = 2;
-
-            // A double decker lift.  
-            // ----------------------------------------------------------------------------------
-            // LIFT E
-            const UInt32 SETTING_LIFT_E_INSTANCE = 2003;
-            const string SETTING_LIFT_E_NAME = "Top of a double decker People Lifter (E)";
-            const Byte SETTING_LIFT_E_INSTALLATION_ID = 2;
-
-            // LIFT F
-            const UInt32 SETTING_LIFT_F_INSTANCE = 2004;
-            const string SETTING_LIFT_F_NAME = "Bottom of a double decker People Lifter (F)";
-            const Byte SETTING_LIFT_F_INSTALLATION_ID = 2;
-
-            // Lift and escalators without groups. 
-            // ----------------------------------------------------------------------------------
-            // Lift G 
-            const UInt32 SETTING_LIFT_G_INSTANCE = 2005;
-            const string SETTING_LIFT_G_NAME = "People Lifter (G)";
-            const Byte SETTING_LIFT_G_INSTALLATION_ID = 3;
-            const Byte SETTING_LIFT_G_GROUP_ID = 3;
-
-            // ESCALATOR H
-            const UInt32 SETTING_ESCALATOR_H_INSTANCE = 1003;
-            const string SETTING_ESCALATOR_H_NAME = "Moving sidewalk (H)";
-            const Byte SETTING_ESCALATOR_H_INSTALLATION_ID = 4;
-            const Byte SETTING_ESCALATOR_H_GROUP_ID = 4;
+            // A Database to hold the current state of the 
+            private ExampleDatabase database = new ExampleDatabase();
 
 
             // Version 
             const string APPLICATION_VERSION = "0.0.1";
-
+            
             public void Run()
             {
                 Console.WriteLine("Starting BACnetElevatorExample version {0}", APPLICATION_VERSION);
@@ -134,36 +53,39 @@ namespace BACnetElevatorExample
 
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyReal(CallbackGetPropertyReal);
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyEnumerated(CallbackGetEnumerated);
-
+                CASBACnetStackAdapter.RegisterCallbackGetPropertyUnsignedInteger(CallbackGetUnsignedInteger);
+                CASBACnetStackAdapter.RegisterCallbackGetPropertyBool(CallbackGetPropertyBool); 
 
                 // Add the device. 
-                CASBACnetStackAdapter.AddDevice(SETTING_DEVICE_INSTANCE);
+                CASBACnetStackAdapter.AddDevice(ExampleDatabase.SETTING_DEVICE_INSTANCE);
 
                 // Enable optional services 
-                CASBACnetStackAdapter.SetServiceEnabled(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICE_READ_PROPERTY_MULTIPLE, true);
-                CASBACnetStackAdapter.SetServiceEnabled(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICE_WRITE_PROPERTY, true);
-                CASBACnetStackAdapter.SetServiceEnabled(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICE_WRITE_PROPERTY_MULTIPLE, true);
+                CASBACnetStackAdapter.SetServiceEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICE_READ_PROPERTY_MULTIPLE, true);
+                CASBACnetStackAdapter.SetServiceEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICE_WRITE_PROPERTY, true);
+                CASBACnetStackAdapter.SetServiceEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICE_WRITE_PROPERTY_MULTIPLE, true);
 
                 // ESCALATOR Group 
-                CASBACnetStackAdapter.AddElevatorGroupObject(SETTING_DEVICE_INSTANCE, SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE, SETTING_ELEVATOR_GROUP_OF_ESCALATOR_MACHINE_ROOM_ID, SETTING_ELEVATOR_GROUP_OF_ESCALATOR_GROUP_ID, false, false);
-                CASBACnetStackAdapter.AddLiftOrEscalatorObject(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, SETTING_ESCALATOR_A_INSTANCE, SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE, SETTING_ELEVATOR_GROUP_OF_ESCALATOR_GROUP_ID, SETTING_ESCALATOR_A_INSTALLATION_ID);
-                CASBACnetStackAdapter.AddLiftOrEscalatorObject(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, SETTING_ESCALATOR_B_INSTANCE, SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE, SETTING_ELEVATOR_GROUP_OF_ESCALATOR_GROUP_ID, SETTING_ESCALATOR_B_INSTALLATION_ID);
+                CASBACnetStackAdapter.AddElevatorGroupObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_MACHINE_ROOM_ID, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_GROUP_ID, false, false);
+                CASBACnetStackAdapter.AddLiftOrEscalatorObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, ExampleDatabase.SETTING_ESCALATOR_A_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_GROUP_ID, ExampleDatabase.SETTING_ESCALATOR_A_INSTALLATION_ID);
+                CASBACnetStackAdapter.AddLiftOrEscalatorObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, ExampleDatabase.SETTING_ESCALATOR_B_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_GROUP_ID, ExampleDatabase.SETTING_ESCALATOR_B_INSTALLATION_ID);
 
                 // LIFT GROUP
-                CASBACnetStackAdapter.AddElevatorGroupObject(SETTING_DEVICE_INSTANCE, SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, SETTING_ELEVATOR_GROUP_OF_LIFT_MACHINE_ROOM_ID, SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID, true, true);
-                CASBACnetStackAdapter.AddLiftOrEscalatorObject(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, SETTING_LIFT_C_INSTANCE, SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID, SETTING_LIFT_C_INSTALLATION_ID);
-                CASBACnetStackAdapter.AddLiftOrEscalatorObject(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, SETTING_LIFT_D_INSTANCE, SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID, SETTING_LIFT_D_INSTALLATION_ID);
+                CASBACnetStackAdapter.AddElevatorGroupObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_MACHINE_ROOM_ID, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID, true, true);
+                CASBACnetStackAdapter.AddLiftOrEscalatorObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.SETTING_LIFT_C_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID, ExampleDatabase.SETTING_LIFT_C_INSTALLATION_ID);
+                CASBACnetStackAdapter.AddLiftOrEscalatorObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.SETTING_LIFT_D_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID, ExampleDatabase.SETTING_LIFT_D_INSTALLATION_ID);
 
                 // Double deck lift.                 
-                CASBACnetStackAdapter.AddLiftOrEscalatorObject(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, SETTING_LIFT_E_INSTANCE, SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID, SETTING_LIFT_E_INSTALLATION_ID);
-                CASBACnetStackAdapter.AddLiftOrEscalatorObject(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, SETTING_LIFT_F_INSTANCE, SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID, SETTING_LIFT_F_INSTALLATION_ID);
-                CASBACnetStackAdapter.SetLiftHigherLowerDeck(SETTING_DEVICE_INSTANCE, SETTING_LIFT_E_INSTANCE, 4194303, SETTING_LIFT_F_INSTANCE);
-                CASBACnetStackAdapter.SetLiftHigherLowerDeck(SETTING_DEVICE_INSTANCE, SETTING_LIFT_F_INSTANCE, SETTING_LIFT_E_INSTANCE, 4194303);
+                CASBACnetStackAdapter.AddLiftOrEscalatorObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.SETTING_LIFT_E_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID, ExampleDatabase.SETTING_LIFT_E_INSTALLATION_ID);
+                CASBACnetStackAdapter.AddLiftOrEscalatorObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.SETTING_LIFT_F_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID, ExampleDatabase.SETTING_LIFT_F_INSTALLATION_ID);
+                CASBACnetStackAdapter.SetLiftHigherLowerDeck(ExampleDatabase.SETTING_DEVICE_INSTANCE, ExampleDatabase.SETTING_LIFT_E_INSTANCE, 4194303, ExampleDatabase.SETTING_LIFT_F_INSTANCE);
+                CASBACnetStackAdapter.SetLiftHigherLowerDeck(ExampleDatabase.SETTING_DEVICE_INSTANCE, ExampleDatabase.SETTING_LIFT_F_INSTANCE, ExampleDatabase.SETTING_LIFT_E_INSTANCE, 4194303);
 
                 // Indepenent Lift and Escalator 
-                CASBACnetStackAdapter.AddLiftOrEscalatorObject(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, SETTING_LIFT_G_INSTANCE, 4194303, SETTING_LIFT_G_GROUP_ID, SETTING_LIFT_G_INSTALLATION_ID);
-                CASBACnetStackAdapter.AddLiftOrEscalatorObject(SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, SETTING_ESCALATOR_H_INSTANCE, 4194303, SETTING_ESCALATOR_H_GROUP_ID, SETTING_ESCALATOR_H_INSTALLATION_ID);
+                CASBACnetStackAdapter.AddLiftOrEscalatorObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.SETTING_LIFT_G_INSTANCE, 4194303, ExampleDatabase.SETTING_LIFT_G_GROUP_ID, ExampleDatabase.SETTING_LIFT_G_INSTALLATION_ID);
+                CASBACnetStackAdapter.AddLiftOrEscalatorObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, ExampleDatabase.SETTING_ESCALATOR_H_INSTANCE, 4194303, ExampleDatabase.SETTING_ESCALATOR_H_GROUP_ID, ExampleDatabase.SETTING_ESCALATOR_H_INSTALLATION_ID);
 
+                // Enabled optional properties. 
+                CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FLOORTEXT, true);
 
                 // All done with the BACnet setup. 
                 Console.WriteLine("FYI: CAS BACnet Stack Setup, successfuly");
@@ -246,44 +168,181 @@ namespace BACnetElevatorExample
                 return 0;
             }
 
+            private UInt32 UpdateStringAndReturnSize(System.Char* value, UInt32 maxElementCount, string stringAsVallue)
+            {
+                byte[] nameAsBuffer = ASCIIEncoding.ASCII.GetBytes(stringAsVallue);
+                UInt32 valueElementCount = maxElementCount;
+                if (nameAsBuffer.Length < valueElementCount)
+                {
+                    valueElementCount = Convert.ToUInt32(nameAsBuffer.Length);
+                }
+                Marshal.Copy(nameAsBuffer, 0, (IntPtr)value, Convert.ToInt32(valueElementCount));
+                return valueElementCount; 
+            }
+
             public bool CallbackGetPropertyCharString(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, System.Char* value, UInt32* valueElementCount, UInt32 maxElementCount, System.Byte encodingType, bool useArrayIndex, UInt32 propertyArrayIndex)
             {
-                Console.WriteLine("FYI: Request for CallbackGetPropertyCharString. objectType={0}, objectInstance={1}, propertyIdentifier={2}", objectType, objectInstance, propertyIdentifier);
-                
-                if (deviceInstance != SETTING_DEVICE_INSTANCE)
-                {
-                    return false; // Not for this device. 
-                }
+                Console.WriteLine("FYI: Request for CallbackGetPropertyCharString. objectType={0}, objectInstance={1}, propertyIdentifier={2}, propertyArrayIndex={3}", objectType, objectInstance, propertyIdentifier, propertyArrayIndex);
 
                 if (propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_OBJECT_NAME)
                 {
-                    if(objectType == CASBACnetStackAdapter.OBJECT_TYPE_DEVICE && objectInstance == SETTING_DEVICE_INSTANCE)
+                    if(objectType == CASBACnetStackAdapter.OBJECT_TYPE_DEVICE && objectInstance == ExampleDatabase.SETTING_DEVICE_INSTANCE)
                     {
-                        byte[] nameAsBuffer = ASCIIEncoding.ASCII.GetBytes(SETTING_DEVICE_NAME);
-                        *valueElementCount = maxElementCount; 
-                        if (nameAsBuffer.Length < *valueElementCount) {
-                            *valueElementCount = Convert.ToUInt32( nameAsBuffer.Length ) ; 
-                        }
-                        Marshal.Copy(nameAsBuffer, 0, (IntPtr)value, Convert.ToInt32( *valueElementCount));
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_DEVICE_NAME);
                         return true;
-                    }                     
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ELEVATOR_GROUP && objectInstance == ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_NAME);
+                        return true;
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR && objectInstance == ExampleDatabase.SETTING_ESCALATOR_A_INSTANCE)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_ESCALATOR_A_NAME);
+                        return true;
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR && objectInstance == ExampleDatabase.SETTING_ESCALATOR_B_INSTANCE)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_ESCALATOR_B_NAME);
+                        return true;
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ELEVATOR_GROUP && objectInstance == ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_NAME);
+                        return true;
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT && objectInstance == ExampleDatabase.SETTING_LIFT_C_INSTANCE)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_LIFT_C_NAME);
+                        return true;
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT && objectInstance == ExampleDatabase.SETTING_LIFT_D_INSTANCE)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_LIFT_D_NAME);
+                        return true;
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT && objectInstance == ExampleDatabase.SETTING_LIFT_E_INSTANCE)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_LIFT_E_NAME);
+                        return true;
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT && objectInstance == ExampleDatabase.SETTING_LIFT_F_INSTANCE)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_LIFT_F_NAME);
+                        return true;
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT && objectInstance == ExampleDatabase.SETTING_LIFT_G_INSTANCE)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_LIFT_G_NAME);
+                        return true;
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR && objectInstance == ExampleDatabase.SETTING_ESCALATOR_H_INSTANCE)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_ESCALATOR_H_NAME);
+                        return true;
+                    }
+                }
+                else if (propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FLOORTEXT && useArrayIndex)
+                {
+                    if (propertyArrayIndex <= ExampleDatabase.FLOOR_NAMES.Length)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.FLOOR_NAMES[propertyArrayIndex - 1]);
+                        return true;
+                    }
+                }
+                else if (propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARDOORTEXT && useArrayIndex)
+                {
+                    if (propertyArrayIndex <= ExampleDatabase.LIFT_CAR_DOOR_TEXT.Length)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.LIFT_CAR_DOOR_TEXT[propertyArrayIndex - 1]);
+                        return true;
+                    }
                 }
 
-                Console.WriteLine("FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
+                Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
                 return false; // Could not handle this request. 
             }
 
             public bool CallbackGetPropertyReal(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, float* value, bool useArrayIndex, UInt32 propertyArrayIndex)
             {
                 Console.WriteLine("FYI: Request for CallbackGetPropertyReal. objectType={0}, objectInstance={1}, propertyIdentifier={2}", objectType, objectInstance, propertyIdentifier);
-                Console.WriteLine("FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier );
+                Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier );
                 return false; 
             }
             public bool CallbackGetEnumerated(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, UInt32* value, bool useArrayIndex, UInt32 propertyArrayIndex)
             {
                 Console.WriteLine("FYI: Request for CallbackGetEnumerated. objectType={0}, objectInstance={1}, propertyIdentifier={2}", objectType, objectInstance, propertyIdentifier);
-                Console.WriteLine("FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
-                return false; 
+
+                if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ELEVATOR_GROUP &&
+                    objectInstance == ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_GROUPMODE)
+                {
+                    *value = ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_MODE;
+                    return true;
+                }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARDOORSTATUS)
+                {
+                    *value = ExampleDatabase.LIFT_CAR_DOOR_STATUS;
+                    return true;
+                }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_OPERATIONDIRECTION)
+                {
+                    *value = ExampleDatabase.ESCALATOR_OPERATION_DIRECTION;
+                    return true;
+                }
+
+
+                Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
+                return false;
+            }
+
+            public bool CallbackGetUnsignedInteger(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, UInt32* value, bool useArrayIndex, UInt32 propertyArrayIndex)
+            {
+                Console.WriteLine("FYI: Request for CallbackGetUnsignedInteger. objectType={0}, objectInstance={1}, propertyIdentifier={2}, propertyArrayIndex={3}", objectType, objectInstance, propertyIdentifier, propertyArrayIndex);
+                if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FLOORTEXT)
+                {
+                    *value = Convert.ToUInt32(ExampleDatabase.FLOOR_NAMES.Length );
+                    return true; 
+                }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                         propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARDOORTEXT)
+                {
+                    *value = Convert.ToUInt32(ExampleDatabase.LIFT_CAR_DOOR_TEXT.Length);
+                    return true;
+                }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                         propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARDOORSTATUS)
+                {
+                    *value = Convert.ToUInt32(ExampleDatabase.LIFT_CAR_DOOR_COUNT );
+                    return true;
+                }
+
+                Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
+                return false;
+            }
+
+            public bool CallbackGetPropertyBool(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, bool* value, [In, MarshalAs(UnmanagedType.I1)] bool useArrayIndex, UInt32 propertyArrayIndex)
+            {
+                Console.WriteLine("FYI: Request for CallbackGetPropertyBool. objectType={0}, objectInstance={1}, propertyIdentifier={2}, propertyArrayIndex={3}", objectType, objectInstance, propertyIdentifier, propertyArrayIndex);
+
+                if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_PASSENGERALARM)
+                {
+                    *value = ExampleDatabase.ESCALATOR_PASSENGER_ALARM;
+                    return true; 
+                }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                 propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_PASSENGERALARM)
+                {
+                    *value = ExampleDatabase.LIFT_PASSENGER_ALARM;
+                    return true;
+                }
+
+                Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
+                return false;
             }
         }
     }
