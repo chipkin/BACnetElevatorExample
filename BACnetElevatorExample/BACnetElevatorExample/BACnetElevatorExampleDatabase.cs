@@ -115,7 +115,9 @@ namespace BACnetElevatorExample
 
         // BACnetEscalatorOperationDirection::= ENUMERATED { unknown(0), stopped(1), up-rated-speed(2), up-reduced-speed(3), down-rated-speed(4), down-reduced-speed(5), ...}
         public const UInt32 ESCALATOR_OPERATION_DIRECTION = 0;
-        public const bool ESCALATOR_PASSENGER_ALARM = true; 
+        public const bool ESCALATOR_PASSENGER_ALARM = true;
+
+        public HashSet<UInt32> ESCALATOR_FAULT_SINGALS;
 
         // Lift properties 
         // -------------------------
@@ -126,6 +128,33 @@ namespace BACnetElevatorExample
         // BACnetDoorStatus::= ENUMERATED {closed(0), opened(1), unknown(2), door-fault(3), unused(4), none(5), closing(6), opening(7), safety-locked(8), limited-opened(9), ...}
         public const UInt32 LIFT_CAR_DOOR_STATUS = 0;
         public const bool LIFT_PASSENGER_ALARM = false;
+        public HashSet<UInt32> LIFT_FAULT_SINGALS;
+
+        // BACnetLiftCarDirection ::= ENUMERATED { unknown (0), none (1), stopped (2), up (3), down (4), up-and-down (5), ... }
+        public const UInt32 LIFT_CAR_MOVING_DIRECTION = 1; // None 
+        public const Byte LIFT_CAR_POSITION = 3; 
+
+        public void Setup()
+        {
+            this.ESCALATOR_FAULT_SINGALS = new HashSet<UInt32>() ;
+            // BACnetEscalatorFault ::= ENUMERATED { controller-fault (0), drive-and-motor-fault (1), mechanical-component-fault (2), overspeed-fault (3), 
+            //                                       power -supply-fault (4), safety-device-fault (5), controller-supply-fault (6), drive-temperature-exceeded (7), 
+            //                                       comb -plate-fault (8), ...}
+            this.ESCALATOR_FAULT_SINGALS.Add(2); // mechanical-component-fault (2)
+            this.ESCALATOR_FAULT_SINGALS.Add(7); // drive-temperature-exceeded (7)
+
+
+            this.LIFT_FAULT_SINGALS = new HashSet<UInt32>();
+            // BACnetLiftFault ::= ENUMERATED { controller-fault (0), drive-and-motor-fault (1), governor-and-safety-gear-fault (2), lift-shaft-device-fault (3), 
+            //                                  power-supply-fault (4), safety-interlock-fault (5), door-closing-fault (6), door-opening-fault (7), 
+            //                                  car-stopped-outside-landing-zone (8), call-button-stuck (9), start-failure (10), controller-supply-fault (11), 
+            //                                  self-test-failure (12), runtime-limit-exceeded (13), position-lost (14), drive-temperature-exceeded (15), 
+            //                                  load-measurement-fault (16), ... }
+            this.LIFT_FAULT_SINGALS.Add(1); // drive-and-motor-fault (1)
+            this.LIFT_FAULT_SINGALS.Add(9); // call-button-stuck (9)
+            this.LIFT_FAULT_SINGALS.Add(14); // position-lost (14)
+
+        }
 
     }
 

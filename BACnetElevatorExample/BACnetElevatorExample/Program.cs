@@ -50,11 +50,11 @@ namespace BACnetElevatorExample
 
                 // Get Datatype Callbacks 
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyCharacterString(CallbackGetPropertyCharString);
-
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyReal(CallbackGetPropertyReal);
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyEnumerated(CallbackGetEnumerated);
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyUnsignedInteger(CallbackGetUnsignedInteger);
-                CASBACnetStackAdapter.RegisterCallbackGetPropertyBool(CallbackGetPropertyBool); 
+                CASBACnetStackAdapter.RegisterCallbackGetPropertyBool(CallbackGetPropertyBool);
+                CASBACnetStackAdapter.RegisterCallbackGetListOfEnumerations(CallbackGetListOfEnumerations);
 
                 // Add the device. 
                 CASBACnetStackAdapter.AddDevice(ExampleDatabase.SETTING_DEVICE_INSTANCE);
@@ -85,10 +85,15 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.AddLiftOrEscalatorObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, ExampleDatabase.SETTING_ESCALATOR_H_INSTANCE, 4194303, ExampleDatabase.SETTING_ESCALATOR_H_GROUP_ID, ExampleDatabase.SETTING_ESCALATOR_H_INSTALLATION_ID);
 
                 // Enabled optional properties. 
+                CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS, true);
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FLOORTEXT, true);
+                CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS, true);
 
                 // All done with the BACnet setup. 
                 Console.WriteLine("FYI: CAS BACnet Stack Setup, successfuly");
+
+                // Database setup 
+                database.Setup();
 
                 // Open the BACnet port to recive messages. 
                 this.udpServer = new UdpClient(SETTING_BACNET_PORT);
@@ -292,6 +297,12 @@ namespace BACnetElevatorExample
                     *value = ExampleDatabase.ESCALATOR_OPERATION_DIRECTION;
                     return true;
                 }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARMOVINGDIRECTION)
+                {
+                    *value = ExampleDatabase.LIFT_CAR_MOVING_DIRECTION;
+                    return true;
+                }
 
 
                 Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
@@ -319,6 +330,13 @@ namespace BACnetElevatorExample
                     *value = Convert.ToUInt32(ExampleDatabase.LIFT_CAR_DOOR_COUNT );
                     return true;
                 }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                         propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARPOSITION)
+                {
+                    *value = Convert.ToUInt32(ExampleDatabase.LIFT_CAR_POSITION);
+                    return true;
+                }
+                
 
                 Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
                 return false;
@@ -343,6 +361,60 @@ namespace BACnetElevatorExample
 
                 Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
                 return false;
+            }
+
+            public bool CallbackGetListOfEnumerations(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, Byte rangeOption, UInt32 rangeIndexOrSequenceNumber, [In, MarshalAs(UnmanagedType.I1)] bool rangeInPositiveDirection, UInt32* enumeration, bool* more)
+            {
+                Console.WriteLine("FYI: Request for CallbackGetListOfEnumerations. objectType={0}, objectInstance={1}, propertyIdentifier={2}, rangeIndexOrSequenceNumber={3}", objectType, objectInstance, propertyIdentifier, rangeIndexOrSequenceNumber);
+
+                if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS &&
+                    rangeOption == 0)
+                {
+                    UInt32 count = 0;
+                    foreach (UInt32 fault in database.ESCALATOR_FAULT_SINGALS)
+                    {
+                        if( count == rangeIndexOrSequenceNumber)
+                        {
+                            *enumeration = fault;
+                            *more = (count < database.ESCALATOR_FAULT_SINGALS.Count - 1);
+                            Console.WriteLine("   FYI: Return *enumeration={0}, *more={1}", *enumeration, *more);
+                            return true; 
+                        }
+                        count++; 
+                    }
+
+                    // Empty list. 
+                    *more = false; 
+                    return true; 
+                } else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                           propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS &&
+                           rangeOption == 0)
+                {
+                    UInt32 count = 0;
+                    foreach (UInt32 fault in database.LIFT_FAULT_SINGALS)
+                    {
+                        if (count == rangeIndexOrSequenceNumber)
+                        {
+                            *enumeration = fault;
+                            *more = (count < database.LIFT_FAULT_SINGALS.Count - 1);
+                            Console.WriteLine("   FYI: Return *enumeration={0}, *more={1}", *enumeration, *more);
+                            return true;
+                        }
+                        count++;
+                    }
+
+                    // Empty list. 
+                    *more = false;
+                    return true;
+                }
+
+
+
+                
+
+                Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
+                return false; 
             }
         }
     }
