@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BACnetElevatorExample": {
+      "commandName": "Project",
+      "workingDirectory": "X:\\chipkin\\Windows-BACnetElevatorExample\\bin\\"
+    }
+  }
+}
