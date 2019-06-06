@@ -110,14 +110,21 @@ namespace BACnetElevatorExample
         public static Byte SETTING_ESCALATOR_H_INSTALLATION_ID = 1;
         public static Byte SETTING_ESCALATOR_H_GROUP_ID = 4;
 
+        // Positive Integer Value 
+        // ----------------------------------------------------------------------------------
+        public static string SETTING_MACHINE_ROOM_1_NAME = "Machine room (1)";
+        public static string SETTING_MACHINE_ROOM_2_NAME = "Machine room (2)";
+
+        // ELEVATOR_GROUP properties 
+        public const float ELEVATOR_GROUP_ENERGY_METER_VALUE = 0.0f;
+
         // ESCALATOR properties 
         // -------------------------
-
         // BACnetEscalatorOperationDirection::= ENUMERATED { unknown(0), stopped(1), up-rated-speed(2), up-reduced-speed(3), down-rated-speed(4), down-reduced-speed(5), ...}
         public const UInt32 ESCALATOR_OPERATION_DIRECTION = 0;
         public const bool ESCALATOR_PASSENGER_ALARM = true;
-
         public HashSet<UInt32> ESCALATOR_FAULT_SINGALS;
+        public const float ESCALATOR_ENERGY_METER_VALUE = 0.0f;
 
         // Lift properties 
         // -------------------------
@@ -132,7 +139,8 @@ namespace BACnetElevatorExample
 
         // BACnetLiftCarDirection ::= ENUMERATED { unknown (0), none (1), stopped (2), up (3), down (4), up-and-down (5), ... }
         public const UInt32 LIFT_CAR_MOVING_DIRECTION = 1; // None 
-        public const Byte LIFT_CAR_POSITION = 3; 
+        public const Byte LIFT_CAR_POSITION = 3;
+        public const float LIFT_ENERGY_METER_VALUE = 0.0f;
 
         public void Setup()
         {

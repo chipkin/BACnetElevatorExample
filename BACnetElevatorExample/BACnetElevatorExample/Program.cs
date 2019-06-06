@@ -55,6 +55,7 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyUnsignedInteger(CallbackGetUnsignedInteger);
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyBool(CallbackGetPropertyBool);
                 CASBACnetStackAdapter.RegisterCallbackGetListOfEnumerations(CallbackGetListOfEnumerations);
+                CASBACnetStackAdapter.RegisterCallbackGetListElevatorGroupLandingCall(CallbackGetListElevatorGroupLandingCall);
 
                 // Add the device. 
                 CASBACnetStackAdapter.AddDevice(ExampleDatabase.SETTING_DEVICE_INSTANCE);
@@ -88,6 +89,9 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS, true);
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FLOORTEXT, true);
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS, true);
+                CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ELEVATOR_GROUP, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER, true);
+                CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER, true);
+                CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER, true);
 
                 // All done with the BACnet setup. 
                 Console.WriteLine("FYI: CAS BACnet Stack Setup, successfuly");
@@ -191,7 +195,7 @@ namespace BACnetElevatorExample
 
                 if (propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_OBJECT_NAME)
                 {
-                    if(objectType == CASBACnetStackAdapter.OBJECT_TYPE_DEVICE && objectInstance == ExampleDatabase.SETTING_DEVICE_INSTANCE)
+                    if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_DEVICE && objectInstance == ExampleDatabase.SETTING_DEVICE_INSTANCE)
                     {
                         *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_DEVICE_NAME);
                         return true;
@@ -246,6 +250,16 @@ namespace BACnetElevatorExample
                         *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_ESCALATOR_H_NAME);
                         return true;
                     }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_POSITIVE_INTEGER_VALUE && objectInstance == ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_MACHINE_ROOM_ID)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_MACHINE_ROOM_1_NAME);
+                        return true;
+                    }
+                    else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_POSITIVE_INTEGER_VALUE && objectInstance == ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_MACHINE_ROOM_ID)
+                    {
+                        *valueElementCount = UpdateStringAndReturnSize(value, maxElementCount, ExampleDatabase.SETTING_MACHINE_ROOM_2_NAME);
+                        return true;
+                    }
                 }
                 else if (propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FLOORTEXT && useArrayIndex)
                 {
@@ -271,6 +285,26 @@ namespace BACnetElevatorExample
             public bool CallbackGetPropertyReal(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, float* value, bool useArrayIndex, UInt32 propertyArrayIndex)
             {
                 Console.WriteLine("FYI: Request for CallbackGetPropertyReal. objectType={0}, objectInstance={1}, propertyIdentifier={2}", objectType, objectInstance, propertyIdentifier);
+
+                if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ELEVATOR_GROUP &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER)
+                {
+                    *value = ExampleDatabase.ELEVATOR_GROUP_ENERGY_METER_VALUE;
+                    return true;
+                }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR &&
+                  propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER)
+                {
+                    *value = ExampleDatabase.ESCALATOR_ENERGY_METER_VALUE;
+                    return true;
+                }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                  propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER)
+                {
+                    *value = ExampleDatabase.LIFT_ENERGY_METER_VALUE;
+                    return true;
+                }
+
                 Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier );
                 return false; 
             }
@@ -336,7 +370,21 @@ namespace BACnetElevatorExample
                     *value = Convert.ToUInt32(ExampleDatabase.LIFT_CAR_POSITION);
                     return true;
                 }
-                
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_POSITIVE_INTEGER_VALUE &&
+                   objectInstance == ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_MACHINE_ROOM_ID &&
+                   propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_PRESENT_VALUE)
+                {
+                    *value = ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_MACHINE_ROOM_ID;
+                    return true;
+                }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_POSITIVE_INTEGER_VALUE &&
+                   objectInstance == ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_MACHINE_ROOM_ID &&
+                   propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_PRESENT_VALUE)
+                {
+                    *value = ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_MACHINE_ROOM_ID;
+                    return true;
+                }
+
 
                 Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
                 return false;
@@ -414,6 +462,21 @@ namespace BACnetElevatorExample
                 
 
                 Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
+                return false; 
+            }
+
+            public bool CallbackGetListElevatorGroupLandingCall(UInt32 deviceInstance, UInt32 elevatorGroupInstance, Byte rangeOption, UInt32 rangeIndexOrSequence, 
+                Byte* floorNumber, Byte* commandChoice, UInt32* bacnetLiftCarDirection, Byte* destination, bool* useFloorText, System.Char* floorText, 
+                UInt16 floorTextMaxLength, UInt16* floorTextLength, bool* more)
+            {
+                Console.WriteLine("FYI: Request for CallbackGetListElevatorGroupLandingCall. elevatorGroupInstance={0}, ", elevatorGroupInstance);
+
+                // ToDo: 
+
+                *more = false;
+                return true;
+
+                Console.WriteLine("   FYI: Not implmented. ");
                 return false; 
             }
         }
