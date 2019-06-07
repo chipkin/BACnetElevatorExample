@@ -17,6 +17,8 @@ Build:
   script:
     # Create the bin directory if it does not exist
     - cd BACnetElevatorExample\BACnetElevatorExample
+    # Restore any nuget or other dependencies needed for the project
+    - msbuild /t:Restore /p:Configuration=Release /p:Platform=AnyCPU
     # Build and package the project in an apk for android
     - msbuild /p:Configuration=Release /p:Platform=AnyCPU
     - cd ..\..\
