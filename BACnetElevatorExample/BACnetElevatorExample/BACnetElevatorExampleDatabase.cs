@@ -115,9 +115,7 @@ namespace BACnetElevatorExample
         public static string SETTING_MACHINE_ROOM_1_NAME = "Machine room (1)";
         public static string SETTING_MACHINE_ROOM_2_NAME = "Machine room (2)";
 
-        // ELEVATOR_GROUP properties 
-        public const float ELEVATOR_GROUP_ENERGY_METER_VALUE = 0.0f;
-
+        
         // ESCALATOR properties 
         // -------------------------
         // BACnetEscalatorOperationDirection::= ENUMERATED { unknown(0), stopped(1), up-rated-speed(2), up-reduced-speed(3), down-rated-speed(4), down-reduced-speed(5), ...}

@@ -89,7 +89,6 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS, true);
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FLOORTEXT, true);
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS, true);
-                CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ELEVATOR_GROUP, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER, true);
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER, true);
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER, true);
 
@@ -286,20 +285,14 @@ namespace BACnetElevatorExample
             {
                 Console.WriteLine("FYI: Request for CallbackGetPropertyReal. objectType={0}, objectInstance={1}, propertyIdentifier={2}", objectType, objectInstance, propertyIdentifier);
 
-                if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ELEVATOR_GROUP &&
+                if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR &&
                     propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER)
-                {
-                    *value = ExampleDatabase.ELEVATOR_GROUP_ENERGY_METER_VALUE;
-                    return true;
-                }
-                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_ESCALATOR &&
-                  propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER)
                 {
                     *value = ExampleDatabase.ESCALATOR_ENERGY_METER_VALUE;
                     return true;
                 }
                 else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
-                  propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER)
+                         propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER)
                 {
                     *value = ExampleDatabase.LIFT_ENERGY_METER_VALUE;
                     return true;

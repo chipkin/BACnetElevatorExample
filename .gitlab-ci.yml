@@ -21,7 +21,7 @@ Build:
     - msbuild /t:Restore /p:Configuration=Release /p:Platform=AnyCPU
     # Build and package the project in an apk for android
     - msbuild /p:Configuration=Release /p:Platform=AnyCPU
-    - cd ..\..\
+    - cd ..\..\bin\
     - dir
   artifacts:
     paths:
