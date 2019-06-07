@@ -12,7 +12,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <OutputPath>X:\chipkin\Windows-BACnetElevatorExample\bin\</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
   </PropertyGroup>
 
 </Project>
