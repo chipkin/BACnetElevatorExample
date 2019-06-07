@@ -1,6 +1,6 @@
 # Windows BACnet Elevator Example
 
-This project was designed as an example of a BACnet IP server that implments Elevator groups, Lifs, Escalator objects using C# and the [CAS BACnet stack](https://www.bacnetstack.com/).
+This project was designed as an example of a BACnet IP server that implments Elevator groups, lifts, Escalator objects using C# and the [CAS BACnet stack](https://www.bacnetstack.com/).
 
 The server device has a fixed set of BACnet objects:
 
@@ -37,18 +37,19 @@ The server device has a fixed set of BACnet objects:
           \------------------------------------------------------------- Mulitple of escalator in this elevator group
 ```
 
-## CAS BACnet Stack Elevator groups, Lifs, Escalator functions
+## CAS BACnet Stack Elevator groups, lifts, Escalator functions
 
-The specific function in the CAS BACnet stack for adding or manupliating the Elevator groups, Lifs, Escalator object types.
+The specific function in the CAS BACnet stack for adding or manupliating the Elevator groups, lifts, Escalator object types.
 
 ### AddElevatorGroupObject
 
 Adds an Elevator Group Object. The device must be added first before this function can be called. The Elevator Group Object references various Lift or Escalator objects. If adding escalators or lifts to an Elevator Group Object, users must add the Elevator Group object first.
 
 ```c++
-bool BACnetStack_AddElevatorGroupObject(const uint32_t deviceInstance, const uint32_t objectInstance,
-                                        const uint32_t machineRoomId, const uint8_t groupId, const bool isGroupOfLifts,
-                                        const bool supportLandingCallStatus)
+bool BACnetStack_AddElevatorGroupObject(
+    const uint32_t deviceInstance, const uint32_t objectInstance,
+    const uint32_t machineRoomId, const uint8_t groupId, const bool isGroupOfLifts,
+    const bool supportLandingCallStatus)
 ```
 
 - **deviceInstance** [IN] - The instance number of the device that owns this Elevator Group Object.
@@ -65,9 +66,10 @@ return True if successful, false if failed.
 Adds a Lift or Escalator Object. The device must be added first before this function can be called. If adding to an Elevator Group Object, the Elevator Group object must be created first.
 
 ```c++
-bool BACnetStack_AddLiftOrEscalatorObject(const uint32_t deviceInstance, const uint16_t objectType,
-                                          const uint32_t objectInstance, const uint32_t elevatorGroupInstance,
-                                          const uint8_t groupId, const uint8_t installationId)
+bool BACnetStack_AddLiftOrEscalatorObject(
+    const uint32_t deviceInstance, const uint16_t objectType, 
+    const uint32_t objectInstance, const uint32_t elevatorGroupInstance,
+    const uint8_t groupId, const uint8_t installationId)
 ```
 
 - **deviceInstance** [IN] - The instance number of the device that owns this Lift or Escalator Object.
@@ -84,8 +86,9 @@ return True if successful, false if failed.
 Sets the HigherDeck and LowerDeck properties of the Lift Object. If the HigherDeck and LowerDeck properties have not been enabled for this Lift Object, then this function will enable them. This function is used to specify a Lift Object as a Multi-Deck Lift. If the Lift Object is the highest deck, then set the higherObjectInstance to 4194303. If the Lift Object is the lowest deck, then set the lowerObjectInstance to 4194303.
 
 ```c++
-bool BACnetStack_SetLiftHigherLowerDeck(const uint32_t deviceInstance, const uint32_t objectInstance,
-                                        const uint32_t higherDeckObjectInstance, const uint32_t lowerDeckObjectInstance)
+bool BACnetStack_SetLiftHigherLowerDeck(
+    const uint32_t deviceInstance, const uint32_t objectInstance,
+    const uint32_t higherDeckObjectInstance, const uint32_t lowerDeckObjectInstance)
 ```
 
 - **deviceInstance** [IN] - The instance of the device that contains the Lift object.
@@ -104,10 +107,11 @@ If a Lift object already has the EnergyMeter property enabled and if the energyM
 From the Spec: If the Energy_Meter_Ref property is present and initialized (contains an instance other than 4194303), then the Energy_Meter property, if present, shall contain a value of 0.0.
 
 ```c++
-bool BACnetStack_SetLiftOrEscalatorEnergyMeterRef(const uint32_t deviceInstance, const uint16_t objectType,
-                                                  const uint32_t objectInstance, const bool energyMeterRefUseDevice,
-                                                  const uint32_t energyMeterRefDeviceInstance, const uint16_t energyMeterRefObjectType,
-                                                  const uint32_t energyMeterRefObjectInstance)
+bool BACnetStack_SetLiftOrEscalatorEnergyMeterRef(
+    const uint32_t deviceInstance, const uint16_t objectType,
+    const uint32_t objectInstance, const bool energyMeterRefUseDevice,
+    const uint32_t energyMeterRefDeviceInstance, const uint16_t energyMeterRefObjectType,
+    const uint32_t energyMeterRefObjectInstance)
 ```
 
 - **deviceInstance** [IN] - The instance of the device that contains the Lift object.
@@ -118,9 +122,9 @@ bool BACnetStack_SetLiftOrEscalatorEnergyMeterRef(const uint32_t deviceInstance,
 - **energyMeterRefObjectType** [IN] - The BACnet Object Type of the object that is the Energy Meter Ref.  #CASBACnetStack::BACnetObjectType for more info.
 - **energyMeterRefObjectInstance** [IN] - The instance of the object that is the Energy Meter Ref.
 
-## Enumerations, and special properties
+## Enumerations
 
-Enumerations used by the Elevator groups, Lifs, Escalator object types properties.
+Enumerations used by the Elevator groups, Lift, Escalator object types properties.
 
 ### Elevator Group Object Type
 

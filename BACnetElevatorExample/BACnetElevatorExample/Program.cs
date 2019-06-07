@@ -1,4 +1,18 @@
-﻿using BACnetStackDLLServerCSharpExample;
+﻿/**
+ * Windows BACnet Elevator Example
+ * ----------------------------------------------------------------------------
+ * In this CAS BACnet Stack example, we create a BACnet IP server with Elevator groups, 
+ * Lifs, Escalator objects using C#. This project was designed as an example for someone 
+ * that wants to implment Elevator groups, Lifs, Escalator objects in a BACnet IP server using C#.
+ *
+ * More information https://github.com/chipkin/Windows-BACnetElevatorExample
+ * 
+ * Created by: Steven Smethurst 
+ * Created on: June 7, 2019 
+ * Last updated: June 7, 2019 
+ */
+
+using BACnetStackDLLServerCSharpExample;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -15,9 +29,6 @@ namespace BACnetElevatorExample
             bacnetServer.Run();
         }
 
-
-
-
         unsafe class BACnetServer
         {
             // UDP 
@@ -33,10 +44,12 @@ namespace BACnetElevatorExample
 
             // Version 
             const string APPLICATION_VERSION = "0.0.1";
-            
+
             public void Run()
             {
-                Console.WriteLine("Starting BACnetElevatorExample version {0}", APPLICATION_VERSION);
+                // Prints the version of the application and the CAS BACnet stack. 
+                Console.WriteLine("Starting BACnetElevatorExample version {0}.{1}", APPLICATION_VERSION, CIBuildVersion.CIBUILDNUMBER);
+                Console.WriteLine("https://github.com/chipkin/Windows-BACnetElevatorExample");
                 Console.WriteLine("FYI: BACnet Stack version: {0}.{1}.{2}.{3}",
                     CASBACnetStackAdapter.GetAPIMajorVersion(),
                     CASBACnetStackAdapter.GetAPIMinorVersion(),
@@ -103,6 +116,7 @@ namespace BACnetElevatorExample
                 this.RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
                 // Main loop.
+                Console.WriteLine("FYI: Starting main loop");
                 for (; ; )
                 {
                     CASBACnetStackAdapter.Loop();
@@ -185,7 +199,7 @@ namespace BACnetElevatorExample
                     valueElementCount = Convert.ToUInt32(nameAsBuffer.Length);
                 }
                 Marshal.Copy(nameAsBuffer, 0, (IntPtr)value, Convert.ToInt32(valueElementCount));
-                return valueElementCount; 
+                return valueElementCount;
             }
 
             public bool CallbackGetPropertyCharString(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, System.Char* value, UInt32* valueElementCount, UInt32 maxElementCount, System.Byte encodingType, bool useArrayIndex, UInt32 propertyArrayIndex)
@@ -298,8 +312,8 @@ namespace BACnetElevatorExample
                     return true;
                 }
 
-                Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier );
-                return false; 
+                Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
+                return false;
             }
             public bool CallbackGetEnumerated(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, UInt32* value, bool useArrayIndex, UInt32 propertyArrayIndex)
             {
@@ -342,8 +356,8 @@ namespace BACnetElevatorExample
                 if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
                     propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FLOORTEXT)
                 {
-                    *value = Convert.ToUInt32(ExampleDatabase.FLOOR_NAMES.Length );
-                    return true; 
+                    *value = Convert.ToUInt32(ExampleDatabase.FLOOR_NAMES.Length);
+                    return true;
                 }
                 else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
                          propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARDOORTEXT)
@@ -354,7 +368,7 @@ namespace BACnetElevatorExample
                 else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
                          propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARDOORSTATUS)
                 {
-                    *value = Convert.ToUInt32(ExampleDatabase.LIFT_CAR_DOOR_COUNT );
+                    *value = Convert.ToUInt32(ExampleDatabase.LIFT_CAR_DOOR_COUNT);
                     return true;
                 }
                 else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
@@ -391,7 +405,7 @@ namespace BACnetElevatorExample
                     propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_PASSENGERALARM)
                 {
                     *value = ExampleDatabase.ESCALATOR_PASSENGER_ALARM;
-                    return true; 
+                    return true;
                 }
                 else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
                  propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_PASSENGERALARM)
@@ -415,22 +429,23 @@ namespace BACnetElevatorExample
                     UInt32 count = 0;
                     foreach (UInt32 fault in database.ESCALATOR_FAULT_SINGALS)
                     {
-                        if( count == rangeIndexOrSequenceNumber)
+                        if (count == rangeIndexOrSequenceNumber)
                         {
                             *enumeration = fault;
                             *more = (count < database.ESCALATOR_FAULT_SINGALS.Count - 1);
                             Console.WriteLine("   FYI: Return *enumeration={0}, *more={1}", *enumeration, *more);
-                            return true; 
+                            return true;
                         }
-                        count++; 
+                        count++;
                     }
 
                     // Empty list. 
-                    *more = false; 
-                    return true; 
-                } else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
-                           propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS &&
-                           rangeOption == 0)
+                    *more = false;
+                    return true;
+                }
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                         propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS &&
+                         rangeOption == 0)
                 {
                     UInt32 count = 0;
                     foreach (UInt32 fault in database.LIFT_FAULT_SINGALS)
@@ -449,17 +464,12 @@ namespace BACnetElevatorExample
                     *more = false;
                     return true;
                 }
-
-
-
-                
-
                 Console.WriteLine("   FYI: Not implmented. propertyIdentifier={0}", propertyIdentifier);
-                return false; 
+                return false;
             }
 
-            public bool CallbackGetListElevatorGroupLandingCall(UInt32 deviceInstance, UInt32 elevatorGroupInstance, Byte rangeOption, UInt32 rangeIndexOrSequence, 
-                Byte* floorNumber, Byte* commandChoice, UInt32* bacnetLiftCarDirection, Byte* destination, bool* useFloorText, System.Char* floorText, 
+            public bool CallbackGetListElevatorGroupLandingCall(UInt32 deviceInstance, UInt32 elevatorGroupInstance, Byte rangeOption, UInt32 rangeIndexOrSequence,
+                Byte* floorNumber, Byte* commandChoice, UInt32* bacnetLiftCarDirection, Byte* destination, bool* useFloorText, System.Char* floorText,
                 UInt16 floorTextMaxLength, UInt16* floorTextLength, bool* more)
             {
                 Console.WriteLine("FYI: Request for CallbackGetListElevatorGroupLandingCall. elevatorGroupInstance={0}, ", elevatorGroupInstance);
@@ -470,7 +480,7 @@ namespace BACnetElevatorExample
                 return true;
 
                 Console.WriteLine("   FYI: Not implmented. ");
-                return false; 
+                return false;
             }
         }
     }
