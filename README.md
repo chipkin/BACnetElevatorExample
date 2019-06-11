@@ -1,4 +1,4 @@
-# Windows BACnet Elevator Example
+# BACnet Elevator Example
 
 In this CAS BACnet Stack example, we create a BACnet IP server with Elevator groups, Lifs, Escalator objects using C#. This project was designed as an example for someone that wants to implment Elevator groups, Lifs, Escalator objects in a BACnet IP server using C#.
 
