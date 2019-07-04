@@ -1,4 +1,4 @@
-# Windows BACnet Elevator Example
+# BACnet Elevator Example
 
 This project was designed as an example of a BACnet IP server that implments Elevator groups, lifts, Escalator objects using C# and the [CAS BACnet stack](https://www.bacnetstack.com/).
 
