@@ -283,6 +283,8 @@ BACnetEscalatorFault ::= ENUMERATED
 
 ## Building
 
-A [Visual studios 2019](https://visualstudio.microsoft.com/vs/) project is included with this project.
-
 This project also auto built using [Gitlab CI](https://docs.gitlab.com/ee/ci/) on every commit.
+
+### Windows
+
+A [Visual studios 2019](https://visualstudio.microsoft.com/vs/) project is included with this project.

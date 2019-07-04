@@ -11,16 +11,16 @@ namespace BACnetStackDLLServerCSharpExample
     {
 #if WINDOWS
 #if (DEBUG)
-        const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Debug.dll";
+        public const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Debug.dll";
 #else
-        const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Release.dll";
+        public const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Release.dll";
 #endif // DEBUG
 #else
         // Linux 
 #if (DEBUG)
-        const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Debug.so";
+        public const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Debug.so";
 #else
-        const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Release.so";
+        public const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Release.so";
 #endif // DEBUG
 #endif // _WINDOWS
 
@@ -844,6 +844,12 @@ namespace BACnetStackDLLServerCSharpExample
         public const UInt32 ENGINEERING_UNITS_PH = 234;
         public const UInt32 ENGINEERING_UNITS_GRAMSPERSQUAREMETER = 235;
         public const UInt32 ENGINEERING_UNITS_MINUTESPERDEGREEKELVIN = 236;
+        #endregion
+
+        #region Errors
+        public const UInt32 ERROR_INVALID_ARRAY_INDEX = 42;
+        public const UInt32 ERROR_VALUE_OUT_OF_RANGE = 37;
+        public const UInt32 ERROR_NO_SPACE_TO_WRITE_PROPERTY = 20;
         #endregion
 
         #region Get Callback functions delegate
