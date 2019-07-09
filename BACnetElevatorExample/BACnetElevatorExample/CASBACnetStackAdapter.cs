@@ -11,16 +11,16 @@ namespace BACnetStackDLLServerCSharpExample
     {
 #if WINDOWS
 #if (DEBUG)
-        const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Debug.dll";
+        public const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Debug.dll";
 #else
-        const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Release.dll";
+        public const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Release.dll";
 #endif // DEBUG
 #else
         // Linux 
 #if (DEBUG)
-        const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Debug.so";
+        public const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Debug.so";
 #else
-        const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Release.so";
+        public const string BACNET_API_DLL_FILENAME = "CASBACnetStack_x64_Release.so";
 #endif // DEBUG
 #endif // _WINDOWS
 
@@ -846,6 +846,19 @@ namespace BACnetStackDLLServerCSharpExample
         public const UInt32 ENGINEERING_UNITS_MINUTESPERDEGREEKELVIN = 236;
         #endregion
 
+        #region Errors
+        public const UInt32 ERROR_INVALID_ARRAY_INDEX = 42;
+        public const UInt32 ERROR_VALUE_OUT_OF_RANGE = 37;
+        public const UInt32 ERROR_NO_SPACE_TO_WRITE_PROPERTY = 20;
+        #endregion
+
+        #region ELEVATOR_GROUP_LANDING_CALL_RANGE
+        public const UInt32 ELEVATOR_GROUP_LANDING_CALL_RANGE_BY_POSITION = 0;
+        public const UInt32 ELEVATOR_GROUP_LANDING_CALL_RANGE_BY_SEQUENCE_NUMBER = 1;
+        #endregion
+
+
+
         #region Get Callback functions delegate
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate UInt16 delegateSendMessage(System.Byte* message, UInt16 messageLength, System.Byte* connectionString, System.Byte connectionStringLength, System.Byte networkType, [In, MarshalAs(UnmanagedType.I1)] bool broadcast);
@@ -879,6 +892,20 @@ namespace BACnetStackDLLServerCSharpExample
         public delegate bool delegateCallbackGetListOfEnumerations(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, Byte rangeOption, UInt32 rangeIndexOrSequenceNumber, [In, MarshalAs(UnmanagedType.I1)] bool rangeInPositiveDirection, UInt32* enumeration, bool *more);
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate bool delegateCallbackGetListElevatorGroupLandingCall(UInt32 deviceInstance, UInt32 elevatorGroupInstance, Byte rangeOption, UInt32 rangeIndexOrSequence, Byte* floorNumber, Byte* commandChoice, UInt32* bacnetLiftCarDirection, Byte* destination, bool* useFloorText, System.Char* floorText, UInt16 floorTextMaxLength, UInt16* floorTextLength, bool* more);
+
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate bool delegateCallbackGetListElevatorGroupLandingCallStatus(UInt32 deviceInstance, UInt32 elevatorGroupInstance, UInt32 propertyIdentifier, Byte rangeOption, UInt32 rangeIndexOrSequence, Byte * floorNumber, Byte * commandChoice, UInt32* bacnetLiftCarDirection, Byte * destination, bool* useFloorText, char* floorText, UInt16 floorTextMaxLength, UInt16* floorTextLength, bool* more);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate bool delegateCallbackGetSequenceLiftRegisteredCarCall(UInt32 deviceInstance, UInt32 objectInstance, UInt32 arrayIndexForDoor, Byte * floorNumber, bool* more);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate bool delegateCallbackGetSequenceLiftAssignedLandingCall(UInt32 deviceInstance, UInt32 objectInstance, UInt32 arrayIndexForDoor, Byte * floorNumber, UInt32* direction, bool* more);
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate bool delegateCallbackGetSequenceLiftLandingDoorStatus(UInt32 deviceInstance, UInt32 objectInstance, UInt32 arrayIndexForDoor, Byte * floorNumber, UInt32* direction, bool* more);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate bool delegateCallbackSetElevatorGroupLandingCallControl(UInt32 deviceInstance, UInt32 elevatorGroupInstance, Byte floorNumber, Byte commandChoice, UInt32 bacnetLiftCarDirection, Byte destination, bool useFloorText, char * floorText, UInt16 floorTextLength);
+
         #endregion
 
         #region Set Callback functions delegate
@@ -954,6 +981,9 @@ namespace BACnetStackDLLServerCSharpExample
         [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_SetPropertyByObjectTypeEnabled", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool SetPropertyByObjectTypeEnabled(UInt32 deviceInstance, UInt16 objectType, UInt32 propertyIdentifier, [In, MarshalAs(UnmanagedType.I1)] bool enabled);
 
+        [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_SetPropertyByObjectTypeWritable", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool SetPropertyByObjectTypeWritable(UInt32 deviceInstance, UInt16 objectType, UInt32 propertyIdentifier, [In, MarshalAs(UnmanagedType.I1)] bool writable);
+
         [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_ValueUpdated", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern void ValueUpdated(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier);
         #endregion
@@ -998,11 +1028,20 @@ namespace BACnetStackDLLServerCSharpExample
         [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_RegisterCallbackGetListOfEnumerations", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern void RegisterCallbackGetListOfEnumerations(delegateCallbackGetListOfEnumerations callbackGetListOfEnumerations);
 
+        [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_RegisterCallbackGetListElevatorGroupLandingCallStatus", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void RegisterCallbackGetListElevatorGroupLandingCallStatus(delegateCallbackGetListElevatorGroupLandingCallStatus callbackGetListElevatorGroupLandingCallStatus);
 
-        [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_RegisterCallbackGetListElevatorGroupLandingCall", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void RegisterCallbackGetListElevatorGroupLandingCall(delegateCallbackGetListElevatorGroupLandingCall callbackGetListElevatorGroupLandingCall);
+        [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_RegisterCallbackGetSequenceLiftRegisteredCarCall", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void RegisterCallbackGetSequenceLiftRegisteredCarCall(delegateCallbackGetSequenceLiftRegisteredCarCall callbackGetSequenceLiftRegisteredCarCall);
 
+        [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_RegisterCallbackGetSequenceLiftAssignedLandingCall", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void RegisterCallbackGetSequenceLiftAssignedLandingCall(delegateCallbackGetSequenceLiftAssignedLandingCall callbackGetSequenceLiftAssignedLandingCall );
 
+        [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_RegisterCallbackGetSequenceLiftLandingDoorStatus", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void RegisterCallbackGetSequenceLiftLandingDoorStatus(delegateCallbackGetSequenceLiftLandingDoorStatus callbackGetSequenceLiftLandingDoorStatus);
+
+        [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_RegisterCallbackSetElevatorGroupLandingCallControl", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void RegisterCallbackSetElevatorGroupLandingCallControl(delegateCallbackSetElevatorGroupLandingCallControl callbackSetElevatorGroupLandingCallControl);
         #endregion
 
         #region RegisterCallbackSetProperty

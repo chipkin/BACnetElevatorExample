@@ -1,2 +1,18 @@
 
 BACnetElevatorExample/\.vs/
+
+bin/
+
+*.cache
+
+*.targets
+
+*.props
+
+*.json
+
+BACnetElevatorExample/BACnetElevatorExample/obj/Debug/
+
+BACnetElevatorExample/BACnetElevatorExample/obj/SB800EX/
+
+BACnetElevatorExample/BACnetElevatorExample/obj/

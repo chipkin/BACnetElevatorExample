@@ -11,7 +11,7 @@ Build:
     - set PATH=%PATH%;C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin
     # Update the CIBuildVersion.cs
     - cd BACnetElevatorExample\BACnetElevatorExample
-    - "echo namespace CASModbusScanner{static class CIBuildVersion { public const int CIBUILDNUMBER = %CI_PIPELINE_IID%;}} > CIBuildVersion.cs"
+    - "echo namespace BACnetElevatorExample{static class CIBuildVersion { public const int CIBUILDNUMBER = %CI_PIPELINE_IID%;}} > CIBuildVersion.cs"
     - type CIBuildVersion.cs
     - cd ..\..\
   script:
@@ -21,7 +21,7 @@ Build:
     - msbuild /t:Restore /p:Configuration=Release /p:Platform=AnyCPU
     # Build and package the project in an apk for android
     - msbuild /p:Configuration=Release /p:Platform=AnyCPU
-    - cd ..\..\
+    - cd ..\..\bin\
     - dir
   artifacts:
     paths:
