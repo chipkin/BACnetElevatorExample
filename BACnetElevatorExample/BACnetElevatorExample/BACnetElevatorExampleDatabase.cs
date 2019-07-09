@@ -142,7 +142,6 @@ namespace BACnetElevatorExample
         public static string SETTING_LIFT_G_NAME = "People Lifter (G)";
         public static Byte SETTING_LIFT_G_INSTALLATION_ID = 1;
         public static Byte SETTING_LIFT_G_GROUP_ID = 3;
-        public static Byte SETTING_LIFT_G_DOOR_COUNT = 2;
         public static string[] SETTING_LIFT_G_DOOR_TEXT = { "Front", "Rear" };
         public static Byte[] SETTING_LIFT_G_MAKING_CAR_CALL = new Byte[] { 0, 0 };
 

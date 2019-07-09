@@ -205,6 +205,28 @@ namespace BACnetElevatorExample
                                     Console.WriteLine("\t\t\t[{0}]: N/A", landingCallCount);
                                 }
                             }
+
+
+                            Console.WriteLine("\tLift \'G\': ");
+                            Console.Write("\t\tDoor Text ({0}): ", ExampleDatabase.SETTING_LIFT_G_DOOR_TEXT.Length);
+                            int doorTextCount = 0;
+                            foreach ( string text in ExampleDatabase.SETTING_LIFT_G_DOOR_TEXT)
+                            {
+                                Console.Write("[{0}]={1}, ", doorTextCount, text );
+                                doorTextCount++;
+                            }
+                            Console.WriteLine("");
+
+                            Console.Write("\t\tMAKING_CAR_CALL: ");
+                            int carCallCount = 0;
+                            foreach (Byte carCall in ExampleDatabase.SETTING_LIFT_G_MAKING_CAR_CALL)
+                            {
+                                Console.Write("[{0}]={1}, ", ExampleDatabase.SETTING_LIFT_G_DOOR_TEXT[carCallCount], (int) carCall);
+                                carCallCount++;
+                            }
+                            Console.WriteLine("");
+
+
                             break;
                     }
                 }
