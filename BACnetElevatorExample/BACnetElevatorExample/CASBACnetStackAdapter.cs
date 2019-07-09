@@ -981,6 +981,9 @@ namespace BACnetStackDLLServerCSharpExample
         [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_SetPropertyByObjectTypeEnabled", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern bool SetPropertyByObjectTypeEnabled(UInt32 deviceInstance, UInt16 objectType, UInt32 propertyIdentifier, [In, MarshalAs(UnmanagedType.I1)] bool enabled);
 
+        [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_SetPropertyByObjectTypeWritable", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool SetPropertyByObjectTypeWritable(UInt32 deviceInstance, UInt16 objectType, UInt32 propertyIdentifier, [In, MarshalAs(UnmanagedType.I1)] bool writable);
+
         [DllImport(BACNET_API_DLL_FILENAME, EntryPoint = "BACnetStack_ValueUpdated", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern void ValueUpdated(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier);
         #endregion
