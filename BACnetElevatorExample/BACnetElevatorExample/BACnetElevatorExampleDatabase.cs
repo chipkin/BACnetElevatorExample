@@ -1,9 +1,25 @@
-﻿using System;
+﻿using BACnetStackDLLServerCSharpExample;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace BACnetElevatorExample
 {
+
+    class BACnetLandingCallStatus
+    {
+        public Byte floorNumber;
+        public enum BACnetLandingCallStatusCommand
+        {
+            na = 0,
+            direction = 1,
+            destination = 2
+        }
+        public BACnetLandingCallStatusCommand commandChoice;
+        public UInt32 commandVaue;
+        public String floorText; 
+    }
+
     class ExampleDatabase
     {
         public const UInt32 SETTING_DEVICE_INSTANCE = 389001;
@@ -88,6 +104,9 @@ namespace BACnetElevatorExample
         public static Byte SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_ID = 2;
         // BACnetLiftGroupMode::= ENUMERATED {unknown(0), normal(1), down-peak(2), two-way(3), four-way(4), emergency-power(5), up-peak }
         public static UInt32 SETTING_ELEVATOR_GROUP_OF_LIFT_GROUP_MODE = 1;
+        public static BACnetLandingCallStatus SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL = new BACnetLandingCallStatus();
+        public static List<BACnetLandingCallStatus> SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALLS = new List<BACnetLandingCallStatus>();
+
 
         // LIFT C
         public static UInt32 SETTING_LIFT_C_INSTANCE = 2001;
@@ -168,6 +187,13 @@ namespace BACnetElevatorExample
             this.LIFT_FAULT_SINGALS.Add(1); // drive-and-motor-fault (1)
             this.LIFT_FAULT_SINGALS.Add(9); // call-button-stuck (9)
             this.LIFT_FAULT_SINGALS.Add(14); // position-lost (14)
+
+
+            // 
+            SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.floorNumber = 0;
+            SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.floorText = "";
+            SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.commandChoice = BACnetLandingCallStatus.BACnetLandingCallStatusCommand.na;
+            SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.commandVaue = 0; 
 
         }
 
