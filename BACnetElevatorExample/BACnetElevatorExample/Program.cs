@@ -12,7 +12,7 @@
  * Last updated: July 9, 2019 
  */
 
-using BACnetStackDLLServerCSharpExample;
+using CASBACnetStack;
 using System;
 using System.Net;
 using System.Net.Sockets;

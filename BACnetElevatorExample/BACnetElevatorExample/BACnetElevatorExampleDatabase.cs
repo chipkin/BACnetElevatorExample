@@ -1,4 +1,4 @@
-﻿using BACnetStackDLLServerCSharpExample;
+﻿using CASBACnetStack;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,11 +11,10 @@ namespace BACnetElevatorExample
         public Byte floorNumber;
         public enum BACnetLandingCallStatusCommand
         {
-            na = 0,
             direction = 1,
             destination = 2
         }
-        public BACnetLandingCallStatusCommand commandChoice;
+        public BACnetLandingCallStatusCommand commandChoice = BACnetLandingCallStatusCommand.direction;
         public UInt32 commandVaue;
         public String floorText; 
     }
@@ -191,7 +190,7 @@ namespace BACnetElevatorExample
             // 
             SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.floorNumber = 0;
             SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.floorText = "";
-            SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.commandChoice = BACnetLandingCallStatus.BACnetLandingCallStatusCommand.na;
+            SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.commandChoice = BACnetLandingCallStatus.BACnetLandingCallStatusCommand.direction;
             SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.commandVaue = 0; 
 
         }
