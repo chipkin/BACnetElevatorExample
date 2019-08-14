@@ -12,8 +12,9 @@
  * Last updated: July 9, 2019 
  */
 
-using BACnetStackDLLServerCSharpExample;
+using CASBACnetStack;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -68,6 +69,9 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyBool(CallbackGetPropertyBool);
                 CASBACnetStackAdapter.RegisterCallbackGetListOfEnumerations(CallbackGetListOfEnumerations);
                 CASBACnetStackAdapter.RegisterCallbackGetListElevatorGroupLandingCallStatus(callbackGetListElevatorGroupLandingCallStatus);
+                CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftAssignedLandingCall(CallbackGetSequenceLiftAssignedLandingCall);
+                CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftRegisteredCarCall(CallbackGetSequenceLiftRegisteredCarCall);
+                CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftLandingDoorStatus(CallbackGetSequenceLiftLandingDoorStatus);
 
                 // Set Datatype Callbacks 
                 CASBACnetStackAdapter.RegisterCallbackSetPropertyUnsignedInteger(CallbackSetUnsignedInteger);
@@ -111,6 +115,9 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ENERGYMETER, true);
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_MAKINGCARCALL, true);
                 CASBACnetStackAdapter.SetPropertyByObjectTypeWritable(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_MAKINGCARCALL, true);
+                CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_REGISTEREDCARCALL, true);
+                CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ASSIGNEDLANDINGCALLS, true);
+                CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_LANDINGDOORSTATUS, true);
 
                 // All done with the BACnet setup. 
                 Console.WriteLine("FYI: CAS BACnet Stack Setup, successfuly");
@@ -570,6 +577,66 @@ namespace BACnetElevatorExample
                     }
                     return true;
                 }
+
+                // 12.59.11Assigned_Landing_Calls
+                // This property, of type BACnetARRAY of BACnetAssignedLandingCalls, shall represent the current landing calls and their
+                // direction for the lift represented by this object.Each array element represents the list of assigned landing calls for the door of
+                //the car assigned to this array element.
+                else if(objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ASSIGNEDLANDINGCALLS)
+                {
+                    if (objectInstance == ExampleDatabase.SETTING_LIFT_G_INSTANCE)
+                    {
+                        // Lift "G" has two doors. 
+                        *value = Convert.ToUInt32(ExampleDatabase.SETTING_LIFT_G_DOOR_TEXT.Length);
+                    }
+                    else
+                    {
+                        // All other doors have the same door count of 1 
+                        *value = Convert.ToUInt32(ExampleDatabase.LIFT_CAR_DOOR_TEXT.Length);
+                    }
+                    return true;
+                }
+
+                // 12.59.13Registered_Car_Call
+                // This property, of type BACnetARRAY of BACnetLiftCarCallList, represents the lists of currently registered car calls
+                // (requests to stop at particular floors using a particular door) for this lift.Each array element represents the list of universal
+                // floor numbers for which calls are registered for the door of the car assigned to this array element.                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_REGISTEREDCARCALL)
+                {
+                    if (objectInstance == ExampleDatabase.SETTING_LIFT_G_INSTANCE)
+                    {
+                        // Lift "G" has two doors. 
+                        *value = Convert.ToUInt32(ExampleDatabase.SETTING_LIFT_G_DOOR_TEXT.Length);
+                    }
+                    else
+                    {
+                        // All other doors have the same door count of 1 
+                        *value = Convert.ToUInt32(ExampleDatabase.LIFT_CAR_DOOR_TEXT.Length);
+                    }
+                    return true;
+                }
+
+                // 12.59.33Landing_Door_Status
+                // This property, of type BACnetARRAY of BACnetLandingDoorStatus, represents the status of the landing doors on the floors
+                // served by this lift.Each element of this array represents the list of landing doors for the door of the car assigned to this array
+                // element.
+                else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
+                    propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_LANDINGDOORSTATUS)
+                {
+                    if (objectInstance == ExampleDatabase.SETTING_LIFT_G_INSTANCE)
+                    {
+                        // Lift "G" has two doors. 
+                        *value = Convert.ToUInt32(ExampleDatabase.SETTING_LIFT_G_DOOR_TEXT.Length);
+                    }
+                    else
+                    {
+                        // All other doors have the same door count of 1 
+                        *value = Convert.ToUInt32(ExampleDatabase.LIFT_CAR_DOOR_TEXT.Length);
+                    }
+                    return true;
+                }
+
                 // 12.59.14 Car_Position
                 // This property, of type Unsigned8, indicates the universal floor number of this lift's car position.
                 else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
@@ -1008,6 +1075,198 @@ namespace BACnetElevatorExample
 
                 Console.WriteLine("   FYI: Not implemented. ");
                 return false; 
+            }
+
+            public bool CallbackGetSequenceLiftRegisteredCarCall(UInt32 deviceInstance, UInt32 objectInstance, UInt32 arrayIndexForDoor, UInt32 offset, Byte* floorNumber, bool* more)
+            {
+                Console.WriteLine("FYI: Request for CallbackGetSequenceLiftRegisteredCarCall. deviceInstance={0}, objectInstance={1}, arrayIndexForDoor={2}, offset={3}",
+                    deviceInstance, objectInstance, arrayIndexForDoor, offset);
+
+                // 12.59.13Registered_Car_Call
+                // This property, of type BACnetARRAY of BACnetLiftCarCallList, represents the lists of currently registered car calls
+                // (requests to stop at particular floors using a particular door) for this lift.Each array element represents the list of universal
+                // floor numbers for which calls are registered for the door of the car assigned to this array element.
+
+                // Get the registered car call list based on the door array index
+                List<Byte> registeredCarCalls;
+                if(objectInstance == ExampleDatabase.SETTING_LIFT_C_INSTANCE)
+                {
+                    registeredCarCalls = ExampleDatabase.SETTING_LIFT_C_REGISTERED_CAR_CALLS[arrayIndexForDoor-1];
+                }
+                else if(objectInstance == ExampleDatabase.SETTING_LIFT_D_INSTANCE)
+                {
+                    registeredCarCalls = ExampleDatabase.SETTING_LIFT_D_REGISTERED_CAR_CALLS[arrayIndexForDoor-1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_E_INSTANCE)
+                {
+                    registeredCarCalls = ExampleDatabase.SETTING_LIFT_E_REGISTERED_CAR_CALLS[arrayIndexForDoor-1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_F_INSTANCE)
+                {
+                    registeredCarCalls = ExampleDatabase.SETTING_LIFT_F_REGISTERED_CAR_CALLS[arrayIndexForDoor-1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_G_INSTANCE)
+                {
+                    registeredCarCalls = ExampleDatabase.SETTING_LIFT_G_REGISTERED_CAR_CALLS[arrayIndexForDoor-1];
+                }
+                else
+                {
+                    // Object does not exist
+                    return false;
+                }
+
+                // Check for empty container
+                if(registeredCarCalls.Count == 0)
+                {
+                    return false;
+                }
+
+                // Fill in the floor number and more values
+                *floorNumber = registeredCarCalls[(int)offset];
+                *more = true;
+                // Check if there are any more values after this
+                if(offset + 1 == registeredCarCalls.Count)
+                {
+                    // No more values, set more to false
+                    *more = false;
+                }
+
+                return true;
+            }
+            
+            public bool CallbackGetSequenceLiftAssignedLandingCall(UInt32 deviceInstance, UInt32 objectInstance, UInt32 arrayIndexForDoor, UInt32 offset, Byte* floorNumber, UInt32* direction, bool* more)
+            {
+                Console.WriteLine("FYI: Request for CallbackGetSequenceLiftAssignedLandingCall. deviceInstance={0}, objectInstance={1}, arrayIndexForDoor={2}, offset={3}",
+                    deviceInstance, objectInstance, arrayIndexForDoor, offset);
+
+                // 12.59.11Assigned_Landing_Calls
+                // This property, of type BACnetARRAY of BACnetAssignedLandingCalls, shall represent the current landing calls and their
+                // direction for the lift represented by this object.Each array element represents the list of assigned landing calls for the door of
+                // the car assigned to this array element.
+                // Each element in BACnetAssignedLandingCalls consists of the universal floor number and the direction, of type
+                // BACnetLiftCarDirection, which may be one of these values:
+                //      - UP The landing call is for upward travel.
+                //      - DOWN The landing call is for downward travel.
+                //      - UP_AND_DOWN The landing call is for both upward and downward travel having been initiated by two different passengers.
+
+                List<BACnetLandingCall> assignedLandingCalls;
+                if (objectInstance == ExampleDatabase.SETTING_LIFT_C_INSTANCE)
+                {
+                    assignedLandingCalls = ExampleDatabase.SETTING_LIFT_C_ASSIGNED_LANDING_CALLS[arrayIndexForDoor - 1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_D_INSTANCE)
+                {
+                    assignedLandingCalls = ExampleDatabase.SETTING_LIFT_D_ASSIGNED_LANDING_CALLS[arrayIndexForDoor - 1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_E_INSTANCE)
+                {
+                    assignedLandingCalls = ExampleDatabase.SETTING_LIFT_E_ASSIGNED_LANDING_CALLS[arrayIndexForDoor - 1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_F_INSTANCE)
+                {
+                    assignedLandingCalls = ExampleDatabase.SETTING_LIFT_F_ASSIGNED_LANDING_CALLS[arrayIndexForDoor - 1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_G_INSTANCE)
+                {
+                    assignedLandingCalls = ExampleDatabase.SETTING_LIFT_G_ASSIGNED_LANDING_CALLS[arrayIndexForDoor - 1];
+                }
+                else
+                {
+                    // Object does not exist
+                    return false;
+                }
+
+                // Check for empty list
+                if(assignedLandingCalls.Count == 0)
+                {
+                    return false;
+                }
+
+                // Get the landing call requested by the offset
+                BACnetLandingCall landingCall = assignedLandingCalls[(int)offset];
+
+                // Fill in the floor number, direction, and more values
+                *floorNumber = landingCall.floorNumber;
+                *direction = landingCall.direction;
+                *more = true;
+                // Check if there are any more values after this
+                if (offset + 1 == assignedLandingCalls.Count)
+                {
+                    // No more values, set more to false
+                    *more = false;
+                }
+
+                return true;
+            }
+
+            public bool CallbackGetSequenceLiftLandingDoorStatus(UInt32 deviceInstance, UInt32 objectInstance, UInt32 arrayIndexForDoor, UInt32 offset, Byte* floorNumber, UInt32* doorStatus, bool* more)
+            {
+                Console.WriteLine("FYI: Request for CallbackGetSequenceLiftLandingDoorStatus. deviceInstance={0}, objectInstance={1}, arrayIndexForDoor={2}, offset={3}",
+                    deviceInstance, objectInstance, arrayIndexForDoor, offset);
+
+                // 12.59.33Landing_Door_Status
+                // This property, of type BACnetARRAY of BACnetLandingDoorStatus, represents the status of the landing doors on the floors
+                // served by this lift.Each element of this array represents the list of landing doors for the door of the car assigned to this array
+                // element.
+                // A landing door status includes the universal floor number and the currently active door status for the landing door.The status
+                // values that each landing door status can take on are:
+                //      UNKNOWN The landing door status is unknown.
+                //      NONE There is no landing door for the respective car door.
+                //      CLOSING The landing door is closing.
+                //      CLOSED The landing door is fully closed but not locked.
+                //      OPENING The landing door is opening.
+                //      OPENED The landing door is fully opened.
+                //      SAFETY_LOCK The landing door is fully closed and locked.
+                //      LIMITED_OPENED The landing door remains in a state between fully closed and fully opened.
+
+                List<BACnetLandingDoor> landingDoorStatus;
+                if (objectInstance == ExampleDatabase.SETTING_LIFT_C_INSTANCE)
+                {
+                    landingDoorStatus = ExampleDatabase.SETTING_LIFT_C_LANDING_DOOR_STATUS[arrayIndexForDoor - 1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_D_INSTANCE)
+                {
+                    landingDoorStatus = ExampleDatabase.SETTING_LIFT_D_LANDING_DOOR_STATUS[arrayIndexForDoor - 1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_E_INSTANCE)
+                {
+                    landingDoorStatus = ExampleDatabase.SETTING_LIFT_E_LANDING_DOOR_STATUS[arrayIndexForDoor - 1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_F_INSTANCE)
+                {
+                    landingDoorStatus = ExampleDatabase.SETTING_LIFT_F_LANDING_DOOR_STATUS[arrayIndexForDoor - 1];
+                }
+                else if (objectInstance == ExampleDatabase.SETTING_LIFT_G_INSTANCE)
+                {
+                    landingDoorStatus = ExampleDatabase.SETTING_LIFT_G_LANDING_DOOR_STATUS[arrayIndexForDoor - 1];
+                }
+                else
+                {
+                    // Object does not exist
+                    return false;
+                }
+
+                // Check for empty list
+                if (landingDoorStatus.Count == 0)
+                {
+                    return false;
+                }
+
+                // Get the landing call requested by the offset
+                BACnetLandingDoor landingDoor = landingDoorStatus[(int)offset];
+
+                // Fill in the floor number, direction, and more values
+                *floorNumber = landingDoor.floorNumber;
+                *doorStatus = landingDoor.doorStatus;
+                *more = true;
+                // Check if there are any more values after this
+                if (offset + 1 == landingDoorStatus.Count)
+                {
+                    // No more values, set more to false
+                    *more = false;
+                }
+
+                return true;
             }
         }
     }

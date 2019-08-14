@@ -16,4 +16,8 @@
     <OutputPath>..\..\bin\</OutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\submodules\cas-bacnet-stack\adapters\csharp\CASBACnetStackAdapter.cs" Link="CASBACnetStackAdapter.cs" />
+  </ItemGroup>
+
 </Project>

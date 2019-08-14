@@ -1,4 +1,4 @@
-﻿using BACnetStackDLLServerCSharpExample;
+﻿using CASBACnetStack;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,15 +11,27 @@ namespace BACnetElevatorExample
         public Byte floorNumber;
         public enum BACnetLandingCallStatusCommand
         {
-            na = 0,
             direction = 1,
             destination = 2
         }
-        public BACnetLandingCallStatusCommand commandChoice;
+        public BACnetLandingCallStatusCommand commandChoice = BACnetLandingCallStatusCommand.direction;
         public UInt32 commandVaue;
         public String floorText; 
     }
 
+    class BACnetLandingCall
+    {
+        public Byte floorNumber;
+        public UInt32 direction;    // Possible values are { Up (3), Down (4), and Up_And_Down (5) }
+    }
+
+    class BACnetLandingDoor
+    {
+        public Byte floorNumber;
+        public UInt32 doorStatus;  
+    }
+
+ 
     class ExampleDatabase
     {
         public const UInt32 SETTING_DEVICE_INSTANCE = 389001;
@@ -70,7 +82,6 @@ namespace BACnetElevatorExample
         public const bool LIFT_PASSENGER_ALARM = false;
         public HashSet<UInt32> LIFT_FAULT_SINGALS;
 
-
         // BACnetLiftCarDirection ::= ENUMERATED { unknown (0), none (1), stopped (2), up (3), down (4), up-and-down (5), ... }
         public const UInt32 LIFT_CAR_MOVING_DIRECTION = 1; // None 
         public const Byte LIFT_CAR_POSITION = 3;
@@ -112,13 +123,19 @@ namespace BACnetElevatorExample
         public static UInt32 SETTING_LIFT_C_INSTANCE = 2001;
         public static string SETTING_LIFT_C_NAME = "People Lifter (C)";
         public static Byte SETTING_LIFT_C_INSTALLATION_ID = 1;
-        public static Byte[] SETTING_LIFT_C_MAKING_CAR_CALL = new Byte[] { 0 }; 
+        public static Byte[] SETTING_LIFT_C_MAKING_CAR_CALL = new Byte[] { 0 };
+        public static List<Byte>[] SETTING_LIFT_C_REGISTERED_CAR_CALLS = new List<Byte>[] { new List<Byte>() }; // 1 door, so only 1 element
+        public static List<BACnetLandingCall>[] SETTING_LIFT_C_ASSIGNED_LANDING_CALLS = new List<BACnetLandingCall>[] { new List<BACnetLandingCall>() }; // 1 door, so only 1 element
+        public static List<BACnetLandingDoor>[] SETTING_LIFT_C_LANDING_DOOR_STATUS = new List<BACnetLandingDoor>[] { new List<BACnetLandingDoor>() }; // 1 door, so only 1 element
 
         // LIFT D 
         public static UInt32 SETTING_LIFT_D_INSTANCE = 2002;
         public static string SETTING_LIFT_D_NAME = "People Lifter (D)";
         public static Byte SETTING_LIFT_D_INSTALLATION_ID = 2;
         public static Byte[] SETTING_LIFT_D_MAKING_CAR_CALL = new Byte[] { 0 };
+        public static List<Byte>[] SETTING_LIFT_D_REGISTERED_CAR_CALLS = new List<Byte>[] { new List<Byte>() }; // 1 door, so only 1 element
+        public static List<BACnetLandingCall>[] SETTING_LIFT_D_ASSIGNED_LANDING_CALLS = new List<BACnetLandingCall>[] { new List<BACnetLandingCall>() }; // 1 door, so only 1 element
+        public static List<BACnetLandingDoor>[] SETTING_LIFT_D_LANDING_DOOR_STATUS = new List<BACnetLandingDoor>[] { new List<BACnetLandingDoor>() }; // 1 door, so only 1 element
 
         // A double decker lift.  
         // ----------------------------------------------------------------------------------
@@ -127,12 +144,18 @@ namespace BACnetElevatorExample
         public static string SETTING_LIFT_E_NAME = "Top of a double decker People Lifter (E)";
         public static Byte SETTING_LIFT_E_INSTALLATION_ID = 3;
         public static Byte[] SETTING_LIFT_E_MAKING_CAR_CALL = new Byte[] { 0 };
+        public static List<Byte>[] SETTING_LIFT_E_REGISTERED_CAR_CALLS = new List<Byte>[] { new List<Byte>() }; // 1 door, so only 1 element
+        public static List<BACnetLandingCall>[] SETTING_LIFT_E_ASSIGNED_LANDING_CALLS = new List<BACnetLandingCall>[] { new List<BACnetLandingCall>() }; // 1 door, so only 1 element
+        public static List<BACnetLandingDoor>[] SETTING_LIFT_E_LANDING_DOOR_STATUS = new List<BACnetLandingDoor>[] { new List<BACnetLandingDoor>() }; // 1 door, so only 1 element
 
         // LIFT F
         public static UInt32 SETTING_LIFT_F_INSTANCE = 2004;
         public static string SETTING_LIFT_F_NAME = "Bottom of a double decker People Lifter (F)";
         public static Byte SETTING_LIFT_F_INSTALLATION_ID = 4;
         public static Byte[] SETTING_LIFT_F_MAKING_CAR_CALL = new Byte[] { 0 };
+        public static List<Byte>[] SETTING_LIFT_F_REGISTERED_CAR_CALLS = new List<Byte>[] { new List<Byte>() }; // 1 door, so only 1 element
+        public static List<BACnetLandingCall>[] SETTING_LIFT_F_ASSIGNED_LANDING_CALLS = new List<BACnetLandingCall>[] { new List<BACnetLandingCall>() }; // 1 door, so only 1 element
+        public static List<BACnetLandingDoor>[] SETTING_LIFT_F_LANDING_DOOR_STATUS = new List<BACnetLandingDoor>[] { new List<BACnetLandingDoor>() }; // 1 door, so only 1 element
 
         // Lift and escalators without groups. 
         // ----------------------------------------------------------------------------------
@@ -144,6 +167,10 @@ namespace BACnetElevatorExample
         public static Byte SETTING_LIFT_G_GROUP_ID = 3;
         public static string[] SETTING_LIFT_G_DOOR_TEXT = { "Front", "Rear" };
         public static Byte[] SETTING_LIFT_G_MAKING_CAR_CALL = new Byte[] { 0, 0 };
+        public static List<Byte>[] SETTING_LIFT_G_REGISTERED_CAR_CALLS = new List<Byte>[] { new List<Byte>(), new List<Byte>() }; // 2 doors, so 2 elements
+        public static List<BACnetLandingCall>[] SETTING_LIFT_G_ASSIGNED_LANDING_CALLS = new List<BACnetLandingCall>[] { new List<BACnetLandingCall>(), new List<BACnetLandingCall>() }; // 2 doors, so 2 elements
+        public static List<BACnetLandingDoor>[] SETTING_LIFT_G_LANDING_DOOR_STATUS = new List<BACnetLandingDoor>[] { new List<BACnetLandingDoor>(), new List<BACnetLandingDoor>() }; // 2 doors, so 2 elements
+
 
         // ESCALATOR H
         public static UInt32 SETTING_ESCALATOR_H_INSTANCE = 1003;
@@ -191,9 +218,78 @@ namespace BACnetElevatorExample
             // 
             SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.floorNumber = 0;
             SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.floorText = "";
-            SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.commandChoice = BACnetLandingCallStatus.BACnetLandingCallStatusCommand.na;
-            SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.commandVaue = 0; 
+            SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.commandChoice = BACnetLandingCallStatus.BACnetLandingCallStatusCommand.direction;
+            SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.commandVaue = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_UNKNOWN;
 
+            // Initialize Lift optional properties (for testing only)
+
+            // Registered Car Calls
+            SETTING_LIFT_C_REGISTERED_CAR_CALLS[0].Clear(); // Lift C will keep empty list
+            SETTING_LIFT_D_REGISTERED_CAR_CALLS[0].Clear(); // Lift D will have one registered car call
+            SETTING_LIFT_D_REGISTERED_CAR_CALLS[0].Add(2);
+            SETTING_LIFT_E_REGISTERED_CAR_CALLS[0].Clear(); // Lift E and F will both have two
+            SETTING_LIFT_E_REGISTERED_CAR_CALLS[0].Add(4);
+            SETTING_LIFT_E_REGISTERED_CAR_CALLS[0].Add(6);
+            SETTING_LIFT_F_REGISTERED_CAR_CALLS[0].Clear();
+            SETTING_LIFT_F_REGISTERED_CAR_CALLS[0].Add(3);
+            SETTING_LIFT_F_REGISTERED_CAR_CALLS[0].Add(5);
+            SETTING_LIFT_G_REGISTERED_CAR_CALLS[0].Clear(); // Lift G door 1 will have 3, door 2 will have 2
+            SETTING_LIFT_G_REGISTERED_CAR_CALLS[1].Clear();
+            SETTING_LIFT_G_REGISTERED_CAR_CALLS[0].Add(1);
+            SETTING_LIFT_G_REGISTERED_CAR_CALLS[0].Add(2);
+            SETTING_LIFT_G_REGISTERED_CAR_CALLS[0].Add(3);
+            SETTING_LIFT_G_REGISTERED_CAR_CALLS[1].Add(0);
+            SETTING_LIFT_G_REGISTERED_CAR_CALLS[1].Add(5);
+
+            // Assigned Landing Calls
+            SETTING_LIFT_C_ASSIGNED_LANDING_CALLS[0].Clear();  // Lift C will keep empty list
+            SETTING_LIFT_D_ASSIGNED_LANDING_CALLS[0].Clear(); // Lift D will have one assigned landing call
+            SETTING_LIFT_D_ASSIGNED_LANDING_CALLS[0].Add(new BACnetLandingCall { floorNumber = 2, direction = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_UP } );
+            SETTING_LIFT_E_ASSIGNED_LANDING_CALLS[0].Clear(); // Lift E and F will both have two assigned landing call
+            SETTING_LIFT_E_ASSIGNED_LANDING_CALLS[0].Add(new BACnetLandingCall { floorNumber = 4, direction = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_UPANDDOWN });
+            SETTING_LIFT_E_ASSIGNED_LANDING_CALLS[0].Add(new BACnetLandingCall { floorNumber = 6, direction = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_DOWN });
+            SETTING_LIFT_F_ASSIGNED_LANDING_CALLS[0].Clear();
+            SETTING_LIFT_F_ASSIGNED_LANDING_CALLS[0].Add(new BACnetLandingCall { floorNumber = 3, direction = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_UPANDDOWN });
+            SETTING_LIFT_F_ASSIGNED_LANDING_CALLS[0].Add(new BACnetLandingCall { floorNumber = 5, direction = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_DOWN });
+            SETTING_LIFT_G_ASSIGNED_LANDING_CALLS[0].Clear(); // Lift G door 1 will have 3, door 2 will have 2
+            SETTING_LIFT_G_ASSIGNED_LANDING_CALLS[1].Clear();
+            SETTING_LIFT_G_ASSIGNED_LANDING_CALLS[0].Add(new BACnetLandingCall { floorNumber = 1, direction = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_UP });
+            SETTING_LIFT_G_ASSIGNED_LANDING_CALLS[0].Add(new BACnetLandingCall { floorNumber = 2, direction = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_UPANDDOWN });
+            SETTING_LIFT_G_ASSIGNED_LANDING_CALLS[0].Add(new BACnetLandingCall { floorNumber = 3, direction = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_DOWN });
+            SETTING_LIFT_G_ASSIGNED_LANDING_CALLS[1].Add(new BACnetLandingCall { floorNumber = 0, direction = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_UP });
+            SETTING_LIFT_G_ASSIGNED_LANDING_CALLS[1].Add(new BACnetLandingCall { floorNumber = 5, direction = CASBACnetStackAdapter.LIFT_CAR_DIRECTION_DOWN });
+
+            // Landing Door Status - set all landing doors to closed
+            SETTING_LIFT_C_LANDING_DOOR_STATUS[0].Clear();
+            for(int i = 0; i < 8; i++)
+            {
+                SETTING_LIFT_C_LANDING_DOOR_STATUS[0].Add(new BACnetLandingDoor { floorNumber = (byte)i, doorStatus = CASBACnetStackAdapter.DOOR_STATUS_CLOSED });
+            }
+            SETTING_LIFT_D_LANDING_DOOR_STATUS[0].Clear();
+            for (int i = 0; i < 8; i++)
+            {
+                SETTING_LIFT_D_LANDING_DOOR_STATUS[0].Add(new BACnetLandingDoor { floorNumber = (byte)i, doorStatus = CASBACnetStackAdapter.DOOR_STATUS_CLOSED });
+            }
+            SETTING_LIFT_E_LANDING_DOOR_STATUS[0].Clear();
+            for (int i = 0; i < 8; i++)
+            {
+                SETTING_LIFT_E_LANDING_DOOR_STATUS[0].Add(new BACnetLandingDoor { floorNumber = (byte)i, doorStatus = CASBACnetStackAdapter.DOOR_STATUS_CLOSED });
+            }
+            SETTING_LIFT_F_LANDING_DOOR_STATUS[0].Clear();
+            for (int i = 0; i < 8; i++)
+            {
+                SETTING_LIFT_F_LANDING_DOOR_STATUS[0].Add(new BACnetLandingDoor { floorNumber = (byte)i, doorStatus = CASBACnetStackAdapter.DOOR_STATUS_CLOSED });
+            }
+            // Lift G Front Landing Door Status
+            SETTING_LIFT_G_LANDING_DOOR_STATUS[0].Clear();
+            for (int i = 0; i < 8; i++)
+            {
+                SETTING_LIFT_G_LANDING_DOOR_STATUS[0].Add(new BACnetLandingDoor { floorNumber = (byte)i, doorStatus = CASBACnetStackAdapter.DOOR_STATUS_CLOSED });
+            }
+            // Lift G Rear Landing Door Status
+            SETTING_LIFT_G_LANDING_DOOR_STATUS[1].Clear();
+            SETTING_LIFT_G_LANDING_DOOR_STATUS[1].Add(new BACnetLandingDoor { floorNumber = 0, doorStatus = CASBACnetStackAdapter.DOOR_STATUS_CLOSED });
+            SETTING_LIFT_G_LANDING_DOOR_STATUS[1].Add(new BACnetLandingDoor { floorNumber = 7, doorStatus = CASBACnetStackAdapter.DOOR_STATUS_SAFETYLOCKED });
         }
 
         public void Loop()
