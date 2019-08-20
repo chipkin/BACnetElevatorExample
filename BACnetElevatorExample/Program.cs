@@ -68,7 +68,7 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyUnsignedInteger(CallbackGetUnsignedInteger);
                 CASBACnetStackAdapter.RegisterCallbackGetPropertyBool(CallbackGetPropertyBool);
                 CASBACnetStackAdapter.RegisterCallbackGetListOfEnumerations(CallbackGetListOfEnumerations);
-                CASBACnetStackAdapter.RegisterCallbackGetListElevatorGroupLandingCallStatus(callbackGetListElevatorGroupLandingCallStatus);
+                CASBACnetStackAdapter.RegisterCallbackGetListElevatorGroupLandingCallStatus(CallbackGetListElevatorGroupLandingCallStatus);
                 CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftAssignedLandingCall(CallbackGetSequenceLiftAssignedLandingCall);
                 CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftRegisteredCarCall(CallbackGetSequenceLiftRegisteredCarCall);
                 CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftLandingDoorStatus(CallbackGetSequenceLiftLandingDoorStatus);
@@ -932,7 +932,7 @@ namespace BACnetElevatorExample
                 return false;
             }
 
-            public bool callbackGetListElevatorGroupLandingCallStatus(UInt32 deviceInstance, UInt32 elevatorGroupInstance, UInt32 propertyIdentifier, Byte rangeOption, 
+            public bool CallbackGetListElevatorGroupLandingCallStatus(UInt32 deviceInstance, UInt32 elevatorGroupInstance, UInt32 propertyIdentifier, Byte rangeOption, 
                         UInt32 rangeIndexOrSequence, Byte* floorNumber, Byte* commandChoice, UInt32* bacnetLiftCarDirection, Byte* destination, bool* useFloorText, 
                         char* floorText, UInt16 floorTextMaxLength, UInt16* floorTextLength, bool* more)
             {
