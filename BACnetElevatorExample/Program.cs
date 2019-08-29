@@ -81,9 +81,10 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.AddDevice(ExampleDatabase.SETTING_DEVICE_INSTANCE);
 
                 // Enable optional services 
-                CASBACnetStackAdapter.SetServiceEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICE_READ_PROPERTY_MULTIPLE, true);
-                CASBACnetStackAdapter.SetServiceEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICE_WRITE_PROPERTY, true);
-                CASBACnetStackAdapter.SetServiceEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICE_WRITE_PROPERTY_MULTIPLE, true);
+                CASBACnetStackAdapter.SetServiceEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICES_SUPPORTED_READ_PROPERTY_MULTIPLE, true);
+                CASBACnetStackAdapter.SetServiceEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICES_SUPPORTED_WRITE_PROPERTY, true);
+                CASBACnetStackAdapter.SetServiceEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICES_SUPPORTED_WRITE_PROPERTY_MULTIPLE, true);
+                CASBACnetStackAdapter.SetServiceEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.SERVICES_SUPPORTED_SUBSCRIBE_COV_PROPERTY, true);
 
                 // ESCALATOR Group 
                 CASBACnetStackAdapter.AddElevatorGroupObject(ExampleDatabase.SETTING_DEVICE_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_MACHINE_ROOM_ID, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_GROUP_ID, false, false);
@@ -119,6 +120,9 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_ASSIGNEDLANDINGCALLS, true);
                 CASBACnetStackAdapter.SetPropertyByObjectTypeEnabled(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_LANDINGDOORSTATUS, true);
 
+                // Make Fault Signals property of the Lift Object Subscribable
+                CASBACnetStackAdapter.SetPropertyByObjectTypeSubscribable(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS, true);
+                
                 // All done with the BACnet setup. 
                 Console.WriteLine("FYI: CAS BACnet Stack Setup, successfuly");
 
@@ -146,6 +150,24 @@ namespace BACnetElevatorExample
                     ConsoleKeyInfo key = Console.ReadKey(true);
                     switch (key.Key)
                     {
+                        case ConsoleKey.F:
+                            // Update the Fault Signals
+                            Console.WriteLine("Updating Lift Fault Signals");
+                            Random random = new Random();
+                            uint faultSignal = (uint)random.Next(0, 16);
+                            if(database.LIFT_FAULT_SINGALS.Contains(faultSignal))
+                            {
+                                Console.WriteLine("Removing {0}", faultSignal);
+                                database.LIFT_FAULT_SINGALS.Remove(faultSignal);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Adding {0}", faultSignal);
+                                database.LIFT_FAULT_SINGALS.Add(faultSignal);
+                            }
+                            CASBACnetStackAdapter.ValueUpdated(ExampleDatabase.SETTING_DEVICE_INSTANCE, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.SETTING_LIFT_G_INSTANCE, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_FAULTSIGNALS);
+                            break;
+
                         default:
                             // Print current status 
                             Console.WriteLine("FYI: Current System Status:");
@@ -228,8 +250,12 @@ namespace BACnetElevatorExample
                                 carCallCount++;
                             }
                             Console.WriteLine("");
-
-
+                            Console.Write("\t\tFault Signals: ");
+                            foreach(uint fault in database.LIFT_FAULT_SINGALS)
+                            {
+                                Console.Write(fault + ", ");
+                            }
+                            Console.WriteLine("");
                             break;
                     }
                 }
