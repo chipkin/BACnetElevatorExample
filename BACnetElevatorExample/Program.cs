@@ -43,7 +43,7 @@ namespace BACnetElevatorExample
             private ExampleDatabase database = new ExampleDatabase();
 
             // Version 
-            const string APPLICATION_VERSION = "0.0.2";
+            const string APPLICATION_VERSION = "0.0.3";
 
             public void Run()
             {
