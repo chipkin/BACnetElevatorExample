@@ -9,11 +9,13 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputPath>../bin</OutputPath>
     <WarningLevel>2</WarningLevel>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputPath>../bin</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

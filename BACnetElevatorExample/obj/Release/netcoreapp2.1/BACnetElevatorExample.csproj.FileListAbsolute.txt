@@ -1,4 +1,0 @@
-X:\chipkin\BACnetElevatorExample\BACnetElevatorExample\obj\Release\netcoreapp2.1\BACnetElevatorExample.csprojAssemblyReference.cache
-X:\chipkin\BACnetElevatorExample\BACnetElevatorExample\obj\Release\netcoreapp2.1\BACnetElevatorExample.csproj.CoreCompileInputs.cache
-X:\chipkin\BACnetElevatorExample\BACnetElevatorExample\obj\Release\netcoreapp2.1\BACnetElevatorExample.AssemblyInfoInputs.cache
-X:\chipkin\BACnetElevatorExample\BACnetElevatorExample\obj\Release\netcoreapp2.1\BACnetElevatorExample.AssemblyInfo.cs

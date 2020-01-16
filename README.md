@@ -285,6 +285,18 @@ BACnetEscalatorFault ::= ENUMERATED
 
 This project also auto built using [Gitlab CI](https://docs.gitlab.com/ee/ci/) on every commit.
 
+To build this project, copy the CAS BACnet Stack DLL/SO file into the project output directory. Then using the following command to build run with donet
+
+```bash
+
+cd BACnetElevatorExample
+dotnet publish -c Release
+cd ../bin/netcoreapp2.1/publish/
+--- Copy libCASBACnetStack_x64_Release.so into the /bin/netcoreapp2.1/publish/ folder ---
+dotnet BACnetElevatorExample.dll
+
+```
+
 ### Windows
 
 A [Visual studios 2019](https://visualstudio.microsoft.com/vs/) project is included with this project.

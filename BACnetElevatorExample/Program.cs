@@ -50,6 +50,8 @@ namespace BACnetElevatorExample
                 // Prints the version of the application and the CAS BACnet stack. 
                 Console.WriteLine("Starting BACnetElevatorExample version {0}.{1}", APPLICATION_VERSION, CIBuildVersion.CIBUILDNUMBER);
                 Console.WriteLine("https://github.com/chipkin/Windows-BACnetElevatorExample");
+
+                Console.WriteLine("FYI: BACnet Stack Adapter version: {0}", CASBACnetStackAdapter.ADAPTER_VERSION); 
                 Console.WriteLine("FYI: BACnet Stack version: {0}.{1}.{2}.{3}",
                     CASBACnetStackAdapter.GetAPIMajorVersion(),
                     CASBACnetStackAdapter.GetAPIMinorVersion(),
