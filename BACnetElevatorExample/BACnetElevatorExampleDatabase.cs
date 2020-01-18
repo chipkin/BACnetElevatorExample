@@ -24,12 +24,15 @@ namespace BACnetElevatorExample
     {
         public Byte floorNumber;
         public UInt32 direction;    // Possible values are { Up (3), Down (4), and Up_And_Down (5) }
+
+        public static string[] carDirectionText = new string[] { "unknown", "none", "stopped", "up", "down", "up-and-down" };
     }
 
     public class BACnetLandingDoor
     {
         public Byte floorNumber;
-        public UInt32 carDoorStatus;  
+        public UInt32 carDoorStatus;
+        public static string[] carDoorStatusText = new string[] { "closed", "opened", "unknown", "door-fault", "unused", "none", "closing", "opening", "safety-locked", "limited-opened" };
     }
 
     public class BACnetBaseObject
@@ -66,10 +69,16 @@ namespace BACnetElevatorExample
         public UInt32 carMovingDirection;
         public Byte carPosition;
         public float energyMeter;
-        public Byte groupID; 
+        public Byte groupID;
 
         public Byte[] makingCarCall;
+        
+        // 12.59.13 Registered_Car_Call
+        // This property, of type BACnetARRAY of BACnetLiftCarCallList, represents the lists of currently registered car calls
+        // (requests to stop at particular floors using a particular door) for this lift .Each array element represents the list of universal
+        // floor numbers for which calls are registered for the door of the car assigned to this array element.
         public List<Byte>[] registeredCarCalls;
+
         public List<BACnetLandingCall>[] assignedLandingCalls;
         public List<BACnetLandingDoor>[] landingDoorStatus;
         public HashSet<UInt32> faultSignals;

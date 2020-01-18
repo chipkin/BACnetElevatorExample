@@ -160,20 +160,17 @@ namespace BACnetElevatorExample
                 Console.WriteLine("===============================================================================");
                 Console.WriteLine("Selected lift ({0}/{1}):", liftOffset + 1, database.lifts.Count);
 
-                Console.WriteLine("  Instance:          {0}", database.lifts[keyList[liftOffset]].instance);
-                Console.WriteLine("  objectName:        {0}", database.lifts[keyList[liftOffset]].objectName);
-
-                // Lift status. 
-                Console.Write("  Car Door Text ({0}): ", database.lifts[keyList[liftOffset]].carDoorText.Length);
-                int doorTextCount = 0;
+                Console.WriteLine("  Instance:               {0}", database.lifts[keyList[liftOffset]].instance);
+                Console.WriteLine("  objectName:             {0}", database.lifts[keyList[liftOffset]].objectName);
+                
+                Console.Write("  Car Door Text ({0}):      ", database.lifts[keyList[liftOffset]].carDoorText.Length);
                 foreach (string text in database.lifts[keyList[liftOffset]].carDoorText)
                 {
-                    Console.Write("[{0}]={1}, ", doorTextCount, text);
-                    doorTextCount++;
+                    Console.Write("{0}, ", text);
                 }
                 Console.WriteLine("");
 
-                Console.Write("  Making Car Call:   ");
+                Console.Write("  Making Car Call:        ");
                 int carCallCount = 0;
                 foreach (Byte carCall in database.lifts[keyList[liftOffset]].makingCarCall)
                 {
@@ -181,11 +178,59 @@ namespace BACnetElevatorExample
                     carCallCount++;
                 }
                 Console.WriteLine("");
-                Console.Write("  Fault Signals:     ");
+
+                Console.WriteLine("  Registered Car Calls:   ");
+                UInt32 indexDoor = 0;
+                foreach (List<Byte> call in database.lifts[keyList[liftOffset]].registeredCarCalls)
+                {
+                    Console.Write("    {0}: ", database.lifts[keyList[liftOffset]].carDoorText[indexDoor]);
+                    foreach (byte carCall in call)
+                    {
+                        Console.Write("{0}, ", BACnetLiftObject.floorText[carCall]);
+                    }
+                    indexDoor++;
+                    Console.Write("\n");
+                }
+
+                Console.WriteLine("  Assigned Landing Calls: ");
+                indexDoor = 0;
+                foreach (List<BACnetLandingCall> call in database.lifts[keyList[liftOffset]].assignedLandingCalls)
+                {
+                    Console.Write("    {0}: ", database.lifts[keyList[liftOffset]].carDoorText[indexDoor]);
+                    foreach (BACnetLandingCall landingCall in call)
+                    {
+                        Console.Write("{0}={1}, ", BACnetLiftObject.floorText[landingCall.floorNumber], BACnetLandingCall.carDirectionText[landingCall.direction]);
+                    }
+                    indexDoor++;
+                    Console.Write("\n");
+                }
+
+                Console.WriteLine("  Landing Door Status:    ");
+                indexDoor = 0; 
+                foreach (List<BACnetLandingDoor> door in database.lifts[keyList[liftOffset]].landingDoorStatus)
+                {
+                    Console.Write("    {0}: ", database.lifts[keyList[liftOffset]].carDoorText[indexDoor] );
+                    foreach (BACnetLandingDoor landingDoor in door)
+                    {
+                        Console.Write("{0}={1}, ", BACnetLiftObject.floorText[landingDoor.floorNumber], BACnetLandingDoor.carDoorStatusText[landingDoor.carDoorStatus]);
+                    }
+                    indexDoor++;
+                    Console.Write("\n");
+                }
+
+                Console.Write("  Fault Signals:          ");
                 foreach (uint fault in database.lifts[keyList[liftOffset]].faultSignals)
                 {
                     Console.Write(fault + ", ");
                 }
+                Console.WriteLine("");
+
+                Console.WriteLine("  Car Moving Direction:   {0}", BACnetLandingCall.carDirectionText[database.lifts[keyList[liftOffset]].carMovingDirection]);
+                Console.WriteLine("  Car Position:           {0}", database.lifts[keyList[liftOffset]].carPosition);
+                Console.WriteLine("  Car Door Status:        {0}", BACnetLandingDoor.carDoorStatusText[database.lifts[keyList[liftOffset]].carDoorStatus]);
+                Console.WriteLine("  Passenger Alarm:        {0}", database.lifts[keyList[liftOffset]].passengerAlarm);
+                Console.WriteLine("  Energy Meter:           {0}", database.lifts[keyList[liftOffset]].energyMeter);
+                
                 Console.WriteLine("");
                 Console.WriteLine("");
                 Console.WriteLine("  ** Left/Right arrow, to change the selected lift ** ");
