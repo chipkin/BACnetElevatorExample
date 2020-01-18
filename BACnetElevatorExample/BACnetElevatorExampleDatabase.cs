@@ -29,24 +29,24 @@ namespace BACnetElevatorExample
     public class BACnetLandingDoor
     {
         public Byte floorNumber;
-        public UInt32 doorStatus;  
+        public UInt32 carDoorStatus;  
     }
 
     public class BACnetBaseObject
     {
         public UInt32 instance;
-        public string name;
+        public string objectName;
 
-        public BACnetBaseObject(UInt32 p_instance, string p_name)
+        public BACnetBaseObject(UInt32 p_instance, string p_objectName)
         {
             this.instance = p_instance;
-            this.name = p_name; 
+            this.objectName = p_objectName; 
         }
     }
 
     public class BACnetDeviceObject : BACnetBaseObject
     {
-        public BACnetDeviceObject(UInt32 p_instance, string p_name) : base(p_instance, p_name )
+        public BACnetDeviceObject(UInt32 p_instance, string p_objectName) : base(p_instance, p_objectName )
         {
 
         }
@@ -55,17 +55,17 @@ namespace BACnetElevatorExample
     public class BACnetLiftObject : BACnetBaseObject
     {
         public Byte installationID;
-        public string[] doorText;
+        public string[] carDoorText;
         // 12.59.9 Floor_Text
         // This property, of type BACnetARRAY of CharacterString, represents the descriptions or names for the floors. The universal
         // floor number serves as an index into this array. The size of this array shall match the highest universal floor number served
         // by this lift.
-        public static string[] floorNames = new string[] { "Basement", "Lobby", "One", "Two", "Three", "Four", "Five", "Roof" };
-        public UInt32 doorStatus;
+        public static string[] floorText = new string[] { "Basement", "Lobby", "One", "Two", "Three", "Four", "Five", "Roof" };
+        public UInt32 carDoorStatus;
         public bool passengerAlarm;
         public UInt32 carMovingDirection;
         public Byte carPosition;
-        public float energyMeterValue;
+        public float energyMeter;
         public Byte groupID; 
 
         public Byte[] makingCarCall;
@@ -74,7 +74,7 @@ namespace BACnetElevatorExample
         public List<BACnetLandingDoor>[] landingDoorStatus;
         public HashSet<UInt32> faultSignals;
 
-        public BACnetLiftObject(UInt32 p_instance, string p_name, Byte p_installationID, Byte p_groupID) : base(p_instance, p_name)
+        public BACnetLiftObject(UInt32 p_instance, string p_objectName, Byte p_installationID, Byte p_groupID) : base(p_instance, p_objectName)
         {
             this.installationID = p_installationID;
             this.groupID = p_groupID; 
@@ -84,14 +84,14 @@ namespace BACnetElevatorExample
             // 12.59.10 Car_Door_Text
             // This property, of type BACnetARRAY of CharacterString, represents the descriptions or names for the doors of the lift car.
             // Each array element represents the description or name for the door of the car assigned to this array element.
-            this.doorText = new string[] {"Front"};
+            this.carDoorText = new string[] {"Front"};
 
             
 
             // BACnetlifts[LIFT_C_INSTANCE]arDirection ::= ENUMERATED { unknown (0), none (1), stopped (2), up (3), down (4), up-and-down (5), ... }
             this.carMovingDirection = 1; // None 
             this.carPosition = 3;
-            this.energyMeterValue = 0.0f;
+            this.energyMeter = 0.0f;
             
             this.passengerAlarm = false;
 
@@ -118,7 +118,7 @@ namespace BACnetElevatorExample
             // This property, of type BACnetARRAY of BACnetDoorStatus, indicates the status of the doors on the car.Each array element
             // indicates the status of the car door assigned to this array element. 
             // BACnetDoorStatus::= ENUMERATED {closed(0), opened(1), unknown(2), door-fault(3), unused(4), none(5), closing(6), opening(7), safety-locked(8), limited-opened(9), ...}
-            this.doorStatus = 0;
+            this.carDoorStatus = 0;
 
             // BACnetlifts[LIFT_F_INSTANCE]ault ::= ENUMERATED { controller-fault (0), drive-and-motor-fault (1), governor-and-safety-gear-fault (2), lift-shaft-device-fault (3), 
             //                                  power-supply-fault (4), safety-interlock-fault (5), door-closing-fault (6), door-opening-fault (7), 
@@ -129,8 +129,8 @@ namespace BACnetElevatorExample
 
             // Landing Door Status - set all landing doors to closed
             this.landingDoorStatus[0].Clear();
-            for (int i = 0; i < floorNames.Length; i++) {
-                this.landingDoorStatus[0].Add(new BACnetLandingDoor { floorNumber = (byte) i, doorStatus = CASBACnetStackAdapter.DOOR_STATUS_CLOSED });
+            for (int i = 0; i < floorText.Length; i++) {
+                this.landingDoorStatus[0].Add(new BACnetLandingDoor { floorNumber = (byte) i, carDoorStatus = CASBACnetStackAdapter.DOOR_STATUS_CLOSED });
             }
         }
     }
@@ -255,7 +255,7 @@ namespace BACnetElevatorExample
             lifts[LIFT_G_INSTANCE] = new BACnetLiftObject(LIFT_G_INSTANCE, "People lifts (G)", 1, 3);
 
             // Lift G, Has two doors, Front and back
-            lifts[LIFT_G_INSTANCE].doorText = new string[] { "Front", "Rear" };
+            lifts[LIFT_G_INSTANCE].carDoorText = new string[] { "Front", "Rear" };
             lifts[LIFT_G_INSTANCE].makingCarCall = new Byte[] { 0, 0 };
             lifts[LIFT_G_INSTANCE].registeredCarCalls = new List<Byte>[] { new List<Byte>(), new List<Byte>() }; // 2 doors, so 2 elements
             lifts[LIFT_G_INSTANCE].assignedLandingCalls = new List<BACnetLandingCall>[] { new List<BACnetLandingCall>(), new List<BACnetLandingCall>() }; // 2 doors, so 2 elements
@@ -313,8 +313,8 @@ namespace BACnetElevatorExample
 
             // Lift G Rear Landing Door Status
             lifts[LIFT_G_INSTANCE].landingDoorStatus[1].Clear();
-            lifts[LIFT_G_INSTANCE].landingDoorStatus[1].Add(new BACnetLandingDoor { floorNumber = 0, doorStatus = CASBACnetStackAdapter.DOOR_STATUS_CLOSED });
-            lifts[LIFT_G_INSTANCE].landingDoorStatus[1].Add(new BACnetLandingDoor { floorNumber = 7, doorStatus = CASBACnetStackAdapter.DOOR_STATUS_SAFETYLOCKED });
+            lifts[LIFT_G_INSTANCE].landingDoorStatus[1].Add(new BACnetLandingDoor { floorNumber = 0, carDoorStatus = CASBACnetStackAdapter.DOOR_STATUS_CLOSED });
+            lifts[LIFT_G_INSTANCE].landingDoorStatus[1].Add(new BACnetLandingDoor { floorNumber = 7, carDoorStatus = CASBACnetStackAdapter.DOOR_STATUS_SAFETYLOCKED });
 
 
         }
