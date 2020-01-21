@@ -174,7 +174,7 @@ namespace BACnetElevatorExample
                 int carCallCount = 0;
                 foreach (Byte carCall in database.lifts[keyList[liftOffset]].makingCarCall)
                 {
-                    Console.Write("[{0}]={1}, ", database.lifts[keyList[liftOffset]].carDoorText[carCallCount], (int)carCall);
+                    Console.Write("{0}: {1}, ", database.lifts[keyList[liftOffset]].carDoorText[carCallCount], (int)carCall);
                     carCallCount++;
                 }
                 Console.WriteLine("");
@@ -225,13 +225,21 @@ namespace BACnetElevatorExample
                 }
                 Console.WriteLine("");
 
-                Console.WriteLine("  Car Moving Direction:   {0}", BACnetLandingCall.carDirectionText[database.lifts[keyList[liftOffset]].carMovingDirection]);
-                Console.WriteLine("  Car Position:           {0}", database.lifts[keyList[liftOffset]].carPosition);
-                Console.WriteLine("  Car Door Status:        {0}", BACnetLandingDoor.carDoorStatusText[database.lifts[keyList[liftOffset]].carDoorStatus]);
+                Console.Write("  Car Door Status:        ");
+                for (int i = 0; i < database.lifts[keyList[liftOffset]].carDoorText.Length; i++)
+                {
+                    Console.Write("{0}: {2} ({1}), ", 
+                        database.lifts[keyList[liftOffset]].carDoorText[i], 
+                        database.lifts[keyList[liftOffset]].carDoorStatus[i],
+                        BACnetLandingDoor.carDoorStatusText[database.lifts[keyList[liftOffset]].carDoorStatus[i]]);
+                }
+                Console.WriteLine("");
+
+                Console.WriteLine("  Car Moving Direction:   {1} ({0})", database.lifts[keyList[liftOffset]].carMovingDirection, BACnetLandingCall.carDirectionText[database.lifts[keyList[liftOffset]].carMovingDirection]);
+                Console.WriteLine("  Car Position:           {1} ({0})", database.lifts[keyList[liftOffset]].carPosition, BACnetLiftObject.floorText[database.lifts[keyList[selectedLift]].carPosition]);
                 Console.WriteLine("  Passenger Alarm:        {0}", database.lifts[keyList[liftOffset]].passengerAlarm);
                 Console.WriteLine("  Energy Meter:           {0}", database.lifts[keyList[liftOffset]].energyMeter);
                 
-                Console.WriteLine("");
                 Console.WriteLine("");
                 Console.WriteLine("  ** Left/Right arrow, to change the selected lift ** ");
                 Console.WriteLine("");
@@ -243,18 +251,18 @@ namespace BACnetElevatorExample
                 Console.WriteLine("FYI: Current System Status:");
 
                 // Print the floors                             
-                Console.Write("\tFloors({0}): ", BACnetLiftObject.floorText.Length);
+                Console.Write("  Floors({0}): ", BACnetLiftObject.floorText.Length);
                 int floorNameCount = 0;
                 foreach (string floorName in BACnetLiftObject.floorText)
                 {
-                    Console.Write("[{0}]={1}, ", floorNameCount, floorName);
+                    Console.Write("{1}({0}), ", floorNameCount, floorName);
                     floorNameCount++;
                 }
                 Console.WriteLine("");
 
                 // Print the status of the lifts. 
-                Console.WriteLine("\tLift Group object: ");
-                Console.Write("\t\tLanding Call Status: ");
+                Console.WriteLine("  Lift Group object: ");
+                Console.Write("    Landing Call Status: ");
                 if (ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.commandChoice != BACnetLandingCallStatus.BACnetLandingCallStatusCommand.direction)
                 {
                     Console.WriteLine("FloorNumber: {0}, Direction: {1}, FloorText: {2}",
@@ -275,13 +283,13 @@ namespace BACnetElevatorExample
                 }
 
                 // Lift landing calls 
-                Console.WriteLine("\t\tLift Landing Calls: ");
+                Console.WriteLine("    Lift Landing Calls: ");
                 int landingCallCount = 0;
                 foreach (BACnetLandingCallStatus status in ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALLS)
                 {
                     if (status.commandChoice != BACnetLandingCallStatus.BACnetLandingCallStatusCommand.direction)
                     {
-                        Console.WriteLine("\t\t\t[{0}]: FloorNumber: {1}, Direction: {2}, FloorText: {3}",
+                        Console.WriteLine("      [{0}]: FloorNumber: {1}, Direction: {2}, FloorText: {3}",
                             landingCallCount,
                             status.floorNumber,
                             status.commandVaue,
@@ -289,7 +297,7 @@ namespace BACnetElevatorExample
                     }
                     else if (status.commandChoice != BACnetLandingCallStatus.BACnetLandingCallStatusCommand.destination)
                     {
-                        Console.WriteLine("\t\t\t[{0}]: FloorNumber: {1}, Destination: {2}, FloorText: {3}",
+                        Console.WriteLine("      [{0}]: FloorNumber: {1}, Destination: {2}, FloorText: {3}",
                             landingCallCount,
                             status.floorNumber,
                             status.commandVaue,
@@ -297,7 +305,7 @@ namespace BACnetElevatorExample
                     }
                     else
                     {
-                        Console.WriteLine("\t\t\t[{0}]: N/A", landingCallCount);
+                        Console.WriteLine("      [{0}]: N/A", landingCallCount);
                     }
                 }
                 Console.WriteLine("");
@@ -363,10 +371,62 @@ namespace BACnetElevatorExample
                                 CASBACnetStackAdapter.ValueUpdated(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_ELEVATOR_GROUP, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_GROUPMODE);
                                 break;
                             }
+                        case ConsoleKey.P:
+                            {
+                                // Toggle passanger alarm 
+                                database.lifts[keyList[selectedLift]].passengerAlarm = !database.lifts[keyList[selectedLift]].passengerAlarm ;
+                                Console.WriteLine("FYI: Toggled passengerAlarm for lift ({0}), to {1}", database.lifts[keyList[selectedLift]].instance, database.lifts[keyList[selectedLift]].passengerAlarm);
+                                CASBACnetStackAdapter.ValueUpdated(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, database.lifts[keyList[selectedLift]].instance, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_PASSENGERALARM);
+                                break;
+                            }
+                        case ConsoleKey.D:
+                            {
+                                // Toggle car moving direction
+                                database.lifts[keyList[selectedLift]].carMovingDirection++;
+                                if(database.lifts[keyList[selectedLift]].carMovingDirection >= BACnetLandingCall.carDirectionText.Length)
+                                {
+                                    // Loop 
+                                    database.lifts[keyList[selectedLift]].carMovingDirection = 0; 
+                                }
+                                Console.WriteLine("FYI: Toggled Car Moving Direction for lift ({0}), to {1} ({2})", database.lifts[keyList[selectedLift]].instance, database.lifts[keyList[selectedLift]].carMovingDirection, BACnetLandingCall.carDirectionText[database.lifts[keyList[selectedLift]].carMovingDirection] );
+                                CASBACnetStackAdapter.ValueUpdated(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, database.lifts[keyList[selectedLift]].instance, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARMOVINGDIRECTION);
+                                break;
+                            }
+                        case ConsoleKey.C:
+                            {
+                                // Toggle car moving direction
+                                database.lifts[keyList[selectedLift]].carPosition++;
+                                if (database.lifts[keyList[selectedLift]].carPosition >= BACnetLiftObject.floorText.Length)
+                                {
+                                    // Loop 
+                                    database.lifts[keyList[selectedLift]].carPosition = 0;
+                                }
+                                Console.WriteLine("FYI: Changed Car Position for lift ({0}), to {1} ({2})", database.lifts[keyList[selectedLift]].instance, database.lifts[keyList[selectedLift]].carPosition, BACnetLiftObject.floorText[database.lifts[keyList[selectedLift]].carPosition]);
+                                CASBACnetStackAdapter.ValueUpdated(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, database.lifts[keyList[selectedLift]].instance, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARPOSITION);
+                                break;
+                            }
+                        case ConsoleKey.S:
+                            {
+                                // Car Door Status
+                                database.lifts[keyList[selectedLift]].carDoorStatus[0]++;
+                                if (database.lifts[keyList[selectedLift]].carDoorStatus[0] >= BACnetLandingDoor.carDoorStatusText.Length)
+                                {
+                                    // Loop 
+                                    database.lifts[keyList[selectedLift]].carDoorStatus[0] = 0;
+                                }
+                                Console.WriteLine("FYI: Changed Car Door Status for lift ({0}), to {1} ({2})", database.lifts[keyList[selectedLift]].instance, database.lifts[keyList[selectedLift]].carDoorStatus, BACnetLandingDoor.carDoorStatusText[database.lifts[keyList[selectedLift]].carDoorStatus[0]]);
+                                CASBACnetStackAdapter.ValueUpdated(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, database.lifts[keyList[selectedLift]].instance, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARDOORSTATUS);
+                                break;
+                            }
                         case ConsoleKey.G:
                             {
                                 PrintGlobalStatus();
                                 break; 
+                            }
+                        case ConsoleKey.Q:
+                            {
+                                System.Environment.Exit(1);
+                                break;
                             }
                     }
 
@@ -375,9 +435,14 @@ namespace BACnetElevatorExample
                     // Print current status                             
                     Console.WriteLine("Actions:");
                     Console.WriteLine("  Selected Lift:");
-                    Console.WriteLine("  * F - Update Fault Signals, for lift ({0})", keyList[selectedLift]);
+                    Console.WriteLine("  * F - Update Fault Signals");
+                    Console.WriteLine("  * P - Toggle Passanger Alarm");
+                    Console.WriteLine("  * D - Toggle Car Moving Direction");
+                    Console.WriteLine("  * C - Change Car Position");
+                    Console.WriteLine("  * S - Change Car Door Status");
                     Console.WriteLine("  General:");
-                    Console.WriteLine("  * M - Update Group Node, for elevator group ({0})", ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE);
+                    Console.WriteLine("  * Q - Quit");
+                    Console.WriteLine("  * M - Update Group mode, for elevator group ({0})", ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE);
                     Console.WriteLine("  * G - Print global status");
                     
                     Console.WriteLine("");
@@ -620,9 +685,16 @@ namespace BACnetElevatorExample
                 // indicates the status of the car door assigned to this array element.
                 else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
                     propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARDOORSTATUS &&
-                    database.lifts.ContainsKey(objectInstance))
+                    database.lifts.ContainsKey(objectInstance) && useArrayIndex)
                 {
-                    *value = database.lifts[objectInstance].carDoorStatus;
+                    if(propertyArrayIndex == 0 )
+                    {
+                        *value = (UInt32) database.lifts[objectInstance].carDoorStatus.Length;
+                    } else
+                    {
+                        *value = database.lifts[objectInstance].carDoorStatus[propertyArrayIndex - 1];
+                    }
+                    
                     return true;
                 }
                 // 12.59.15 Car_Moving_Direction
@@ -679,11 +751,18 @@ namespace BACnetElevatorExample
                 // indicates the status of the car door assigned to this array element.
                 else if (objectType == CASBACnetStackAdapter.OBJECT_TYPE_LIFT &&
                          propertyIdentifier == CASBACnetStackAdapter.PROPERTY_IDENTIFIER_CARDOORSTATUS &&
-                         database.lifts.ContainsKey(objectInstance) )
+                         database.lifts.ContainsKey(objectInstance) && useArrayIndex )
                 {
                     // Lift "G" has two doors. 
                     // All other doors have the same door count of 1 
-                    *value = Convert.ToUInt32(database.lifts[objectInstance].carDoorStatus);
+                    if(propertyArrayIndex == 0 )
+                    {
+                        *value = Convert.ToUInt32(database.lifts[objectInstance].carDoorStatus.Length);
+                    } else
+                    {
+                        *value = Convert.ToUInt32(database.lifts[objectInstance].carDoorStatus[propertyArrayIndex-1]);
+                    }
+                    
                     return true;
                 }
 

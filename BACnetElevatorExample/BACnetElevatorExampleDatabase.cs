@@ -5,8 +5,6 @@ using System.Text;
 
 namespace BACnetElevatorExample
 {
-    
-
     public class BACnetLandingCallStatus
     {
         public Byte floorNumber;
@@ -64,9 +62,9 @@ namespace BACnetElevatorExample
         // floor number serves as an index into this array. The size of this array shall match the highest universal floor number served
         // by this lift.
         public static string[] floorText = new string[] { "Basement", "Lobby", "One", "Two", "Three", "Four", "Five", "Roof" };
-        public UInt32 carDoorStatus;
+        public UInt32[] carDoorStatus; // See BACnetLandingDoor.carDoorStatusText
         public bool passengerAlarm;
-        public UInt32 carMovingDirection;
+        public UInt32 carMovingDirection; // See BACnetLandingCall.carDirectionText
         public Byte carPosition;
         public float energyMeter;
         public Byte groupID;
@@ -127,7 +125,10 @@ namespace BACnetElevatorExample
             // This property, of type BACnetARRAY of BACnetDoorStatus, indicates the status of the doors on the car.Each array element
             // indicates the status of the car door assigned to this array element. 
             // BACnetDoorStatus::= ENUMERATED {closed(0), opened(1), unknown(2), door-fault(3), unused(4), none(5), closing(6), opening(7), safety-locked(8), limited-opened(9), ...}
-            this.carDoorStatus = 0;
+            this.carDoorStatus = new UInt32[carDoorText.Length];
+            for (int i = 0; i < carDoorText.Length; i++) {
+                this.carDoorStatus[i] = 0; // Close = 0 
+            }
 
             // BACnetlifts[LIFT_F_INSTANCE]ault ::= ENUMERATED { controller-fault (0), drive-and-motor-fault (1), governor-and-safety-gear-fault (2), lift-shaft-device-fault (3), 
             //                                  power-supply-fault (4), safety-interlock-fault (5), door-closing-fault (6), door-opening-fault (7), 
@@ -269,6 +270,10 @@ namespace BACnetElevatorExample
             lifts[LIFT_G_INSTANCE].registeredCarCalls = new List<Byte>[] { new List<Byte>(), new List<Byte>() }; // 2 doors, so 2 elements
             lifts[LIFT_G_INSTANCE].assignedLandingCalls = new List<BACnetLandingCall>[] { new List<BACnetLandingCall>(), new List<BACnetLandingCall>() }; // 2 doors, so 2 elements
             lifts[LIFT_G_INSTANCE].landingDoorStatus = new List<BACnetLandingDoor>[] { new List<BACnetLandingDoor>(), new List<BACnetLandingDoor>() }; // 2 doors, so 2 elements
+            lifts[LIFT_G_INSTANCE].carDoorStatus = new UInt32[lifts[LIFT_G_INSTANCE].carDoorText.Length];
+            lifts[LIFT_G_INSTANCE].carDoorStatus[0] = 0; // Close = 0 
+            lifts[LIFT_G_INSTANCE].carDoorStatus[1] = 0; // Close = 0 
+
 
             // ELEVATOR_GROUP
             SETTING_ELEVATOR_GROUP_OF_LIFT_LANDING_CALL_CONTROL.floorNumber = 0;
