@@ -83,6 +83,7 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.AddDevice(database.device.instance);
 
                 // Enable optional services 
+                CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_I_AM, true);
                 CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_READ_PROPERTY_MULTIPLE, true);
                 CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_WRITE_PROPERTY, true);
                 CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_WRITE_PROPERTY_MULTIPLE, true);
