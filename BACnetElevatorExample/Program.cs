@@ -79,6 +79,9 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.RegisterCallbackSetPropertyUnsignedInteger(CallbackSetUnsignedInteger);
                 CASBACnetStackAdapter.RegisterCallbackSetElevatorGroupLandingCallControl(CallbackSetElevatorGroupLandingCallControl);
 
+                // Service Callbacks
+                CASBACnetStackAdapter.RegisterCallbackAcknowledgeAlarm(CallbackAcknowledgeAlarm);
+
                 // Add the device. 
                 CASBACnetStackAdapter.AddDevice(database.device.instance);
 
@@ -88,6 +91,8 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_WRITE_PROPERTY, true);
                 CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_WRITE_PROPERTY_MULTIPLE, true);
                 CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_SUBSCRIBE_COV_PROPERTY, true);
+                CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_ACKNOWLEDGE_ALARM, true);
+                CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_GET_EVENT_INFORMATION, true);
 
                 // ESCALATOR Group 
                 CASBACnetStackAdapter.AddElevatorGroupObject(database.device.instance, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_MACHINE_ROOM_ID, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_GROUP_ID, false, false);
@@ -133,6 +138,35 @@ namespace BACnetElevatorExample
                 // Make some property of group of lifts object Subscribable
                 CASBACnetStackAdapter.SetPropertySubscribable(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_ELEVATOR_GROUP, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_LIFT_INSTANCE, CASBACnetStackAdapter.PROPERTY_IDENTIFIER_GROUPMODE, true);
 
+                // Add Notification Class
+               CASBACnetStackAdapter.AddNotificationClassObject(database.device.instance, ExampleDatabase.SETTING_NOTIFICATION_CLASS_INSTANCE, ExampleDatabase.NOTIFICATION_CLASS_TOOFFNORMAL_PRIORITY, ExampleDatabase.NOTIFICATION_CLASS_TOFAULT_PRIORITY, ExampleDatabase.NOTIFICATION_CLASS_TONORMAL_PRIORITY, ExampleDatabase.NOTIFICATION_CLASS_TOOFFNORMAL_ACKREQUIRED, ExampleDatabase.NOTIFICATION_CLASS_TOFAULT_ACKREQUIRED, ExampleDatabase.NOTIFICATION_CLASS_TONORMAL_ACKREQUIRED);
+
+                // Data buffer for recipient mac address (IP Address and Port).  
+                byte[] recipientAddress = { 0xC0, 0xA8, 0x01, 0x54, 0xC0, 0xBA };
+                fixed(byte* recipientAddressPtr = recipientAddress)
+                    CASBACnetStackAdapter.AddRecipientToNotificationClass(database.device.instance, ExampleDatabase.SETTING_NOTIFICATION_CLASS_INSTANCE, 127, 0, 0, 0, 0, 23, 59, 59, 99, 1, false, true, true, true, false, 0, true, 0, recipientAddressPtr, 6);
+
+                // Enable Alarming for all the lifts
+                // The intrinsic alarms available for lifts and escalators are:  ChangeOfState for the PassengerAlarm property, FaultsListed for the FaultSignals property
+                CASBACnetStackAdapter.EnableAlarmsAndEventsForObject(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_C_INSTANCE, ExampleDatabase.SETTING_NOTIFICATION_CLASS_INSTANCE, CASBACnetStackAdapter.NOTIFY_TYPE_ALARM, true, true, true, true);
+                CASBACnetStackAdapter.SetIntrinsicChangeOfStateAlgorithmBool(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_C_INSTANCE, true, 0, false, 0, true);
+                CASBACnetStackAdapter.SetFaultListedAlgorithm(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_C_INSTANCE, true);
+
+                CASBACnetStackAdapter.EnableAlarmsAndEventsForObject(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_D_INSTANCE, ExampleDatabase.SETTING_NOTIFICATION_CLASS_INSTANCE, CASBACnetStackAdapter.NOTIFY_TYPE_ALARM, true, true, true, true);
+                CASBACnetStackAdapter.SetIntrinsicChangeOfStateAlgorithmBool(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_D_INSTANCE, true, 0, false, 0, true);
+                CASBACnetStackAdapter.SetFaultListedAlgorithm(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_D_INSTANCE, true);
+
+                CASBACnetStackAdapter.EnableAlarmsAndEventsForObject(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_E_INSTANCE, ExampleDatabase.SETTING_NOTIFICATION_CLASS_INSTANCE, CASBACnetStackAdapter.NOTIFY_TYPE_ALARM, true, true, true, true);
+                CASBACnetStackAdapter.SetIntrinsicChangeOfStateAlgorithmBool(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_E_INSTANCE, true, 0, false, 0, true);
+                CASBACnetStackAdapter.SetFaultListedAlgorithm(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_E_INSTANCE, true);
+
+                CASBACnetStackAdapter.EnableAlarmsAndEventsForObject(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_F_INSTANCE, ExampleDatabase.SETTING_NOTIFICATION_CLASS_INSTANCE, CASBACnetStackAdapter.NOTIFY_TYPE_ALARM, true, true, true, true);
+                CASBACnetStackAdapter.SetIntrinsicChangeOfStateAlgorithmBool(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_F_INSTANCE, true, 0, false, 0, true);
+                CASBACnetStackAdapter.SetFaultListedAlgorithm(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_F_INSTANCE, true);
+
+                CASBACnetStackAdapter.EnableAlarmsAndEventsForObject(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_G_INSTANCE, ExampleDatabase.SETTING_NOTIFICATION_CLASS_INSTANCE, CASBACnetStackAdapter.NOTIFY_TYPE_ALARM, true, true, true, true);
+                CASBACnetStackAdapter.SetIntrinsicChangeOfStateAlgorithmBool(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_G_INSTANCE, true, 0, false, 0, true);
+                CASBACnetStackAdapter.SetFaultListedAlgorithm(database.device.instance, CASBACnetStackAdapter.OBJECT_TYPE_LIFT, ExampleDatabase.LIFT_G_INSTANCE, true);
 
                 // All done with the BACnet setup. 
                 Console.WriteLine("FYI: CAS BACnet Stack Setup, successfuly");
@@ -1289,6 +1323,43 @@ namespace BACnetElevatorExample
                 {
                     // No more values, set more to false
                     *more = false;
+                }
+
+                return true;
+            }
+
+            public bool CallbackAcknowledgeAlarm(UInt32 deviceInstance, UInt32 acknowledgingProcessIdentifier, UInt16 eventObjectType, UInt32 eventObjectInstance, UInt16 eventStateAcknowledged, Byte eventTimeStampYear, Byte eventTimeStampMonth, Byte eventTimeStampDay, Byte eventTimeStampWeekday, Byte eventTimeStampHour, Byte eventTimeStampMinute, Byte eventTimeStampSecond, Byte eventTimeStampHundrethSecond, System.Byte* acknowledgementSource, UInt32 acknowledgementSourceLength, Byte acknowledgementSourceEncoding, bool timeOfAcknowledgementIsTime, bool timeOfAcknowledgementIsSequenceNumber, bool timeOfAcknowledgementIsDateTime, Byte timeOfAcknowledgementYear, Byte timeOfAcknowledgementMonth, Byte timeOfAcknowledgementDay, Byte timeOfAcknowledgementWeekday, Byte timeOfAcknowledgementHour, Byte timeOfAcknowledgementMinute, Byte timeOfAcknowledgementSecond, Byte timeOfAcknowledgementHundrethSecond, UInt16 timeOfAcknowledgementSequenceNumber, UInt32* errorCode)
+            {
+                // This function is primarily used to validate the acknowledgingSource
+                // But in this example, only the parameters will be displayed
+                Console.WriteLine("FYI: Request for CallbackAcknowledgeAlarm. deviceInstance={0}, acknowledgingProcessIdentifier={1}, eventObjectType={2}, eventObjectInstance={3}, eventStateAcknowledge={4}",
+                    deviceInstance, acknowledgingProcessIdentifier, eventObjectType, eventObjectInstance, eventStateAcknowledged);
+                Console.WriteLine("        eventTimeStamp={0}-{1}-{2} {3}:{4}:{5}.{6}",
+                    eventTimeStampDay, eventTimeStampMonth, eventTimeStampYear + 1900, eventTimeStampHour, eventTimeStampMinute, eventTimeStampSecond, eventTimeStampHundrethSecond);
+                byte[] temp = new byte[acknowledgementSourceLength];
+                Marshal.Copy((IntPtr)acknowledgementSource, temp, 0, (int)acknowledgementSourceLength);
+                var str = System.Text.Encoding.Default.GetString(temp);
+
+                if(!str.Equals("TestDevice"))
+                {
+                    *errorCode = CASBACnetStackAdapter.ERROR_SERVICE_REQUEST_DENIED;
+                    return false;
+                }
+
+                Console.WriteLine("        acknowledgingSource={0}", str);
+
+                if(timeOfAcknowledgementIsTime)
+                {
+                    Console.WriteLine("        timeOfAcknowledgement (time)={0}:{1}:{2}.{3}", timeOfAcknowledgementHour, timeOfAcknowledgementMinute, timeOfAcknowledgementSecond, timeOfAcknowledgementHundrethSecond);
+                }
+                if(timeOfAcknowledgementIsSequenceNumber)
+                {
+                    Console.WriteLine("        timeOfAcknowledgement (sequenceNumber)={0}", timeOfAcknowledgementSequenceNumber);
+                }
+                if(timeOfAcknowledgementIsDateTime)
+                {
+                    Console.WriteLine("        timeOfAcknowledgement (datetime)={0}-{1}-{2} {3}:{4}:{5}.{6}",
+                   timeOfAcknowledgementDay, timeOfAcknowledgementMonth, timeOfAcknowledgementYear + 1900, timeOfAcknowledgementHour, timeOfAcknowledgementMinute, timeOfAcknowledgementSecond, timeOfAcknowledgementHundrethSecond);
                 }
 
                 return true;

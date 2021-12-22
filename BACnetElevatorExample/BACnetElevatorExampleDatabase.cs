@@ -244,6 +244,14 @@ namespace BACnetElevatorExample
         public HashSet<UInt32> ESCALATOR_FAULT_SINGALS;
         public const float ESCALATOR_ENERGY_METER_VALUE = 0.0f;
 
+        // NOTIFICATION CLASS properties
+        public static UInt32 SETTING_NOTIFICATION_CLASS_INSTANCE = 100;
+        public const Byte NOTIFICATION_CLASS_TOOFFNORMAL_PRIORITY = 10;
+        public const Byte NOTIFICATION_CLASS_TOFAULT_PRIORITY = 100;
+        public const Byte NOTIFICATION_CLASS_TONORMAL_PRIORITY = 200;
+        public const bool NOTIFICATION_CLASS_TOOFFNORMAL_ACKREQUIRED = true;
+        public const bool NOTIFICATION_CLASS_TOFAULT_ACKREQUIRED = true;
+        public const bool NOTIFICATION_CLASS_TONORMAL_ACKREQUIRED = true;
 
         public ExampleDatabase()
         {
