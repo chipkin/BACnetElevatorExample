@@ -292,11 +292,6 @@ namespace BACnetElevatorExample
             // Initialize Lift optional properties (for testing only)
             // ------------
 
-            // faultSignals
-            lifts[LIFT_D_INSTANCE].faultSignals.Add(1); // drive-and-motor-fault (1)
-            lifts[LIFT_D_INSTANCE].faultSignals.Add(9); // call-button-stuck (9)
-            lifts[LIFT_D_INSTANCE].faultSignals.Add(14); // position-lost (14)
-
             // Registered Car Calls
             lifts[LIFT_C_INSTANCE].registeredCarCalls[0].Clear(); // Lift C will keep empty list
             lifts[LIFT_D_INSTANCE].registeredCarCalls[0].Clear(); // Lift D will have one registered car call
