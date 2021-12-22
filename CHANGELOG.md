@@ -2,6 +2,15 @@
 
 ## Version 0.0.x
 
+### 0.0.6 (2021-Dec-22)
+
+- Updated to CAS BACnet Stack Version 3.26.0
+- Enabled Alarms and Events for all the lift objects
+- Set the lift object to use the following alarm and event intrinsic algorithms:
+  - ChangeOfState for the PassengerAlarm property
+  - FaultsListed for the FaultSignals property
+- Enabled the AcknowledgeAlarm and GetEventInformation services
+
 ### 0.0.5 (2020-Sep-28)
 
 - Updated to CAS BACnet Stack Version 3.19.0.x
