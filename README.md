@@ -122,6 +122,229 @@ bool BACnetStack_SetLiftOrEscalatorEnergyMeterRef(
 - **energyMeterRefObjectType** [IN] - The BACnet Object Type of the object that is the Energy Meter Ref.  #CASBACnetStack::BACnetObjectType for more info.
 - **energyMeterRefObjectInstance** [IN] - The instance of the object that is the Energy Meter Ref.
 
+## Alarms and Events
+
+Use the following functions to enable alarms and events for Lifts and Escalator objects.
+
+### AddNotificationClassObject
+
+First, add a Notification Class object.  The Notification Class object contains all the information of how to handle event notifications.
+
+```c++
+bool BACnetStack_AddNotificationClassObject(
+    const uint32_t deviceInstance, const uint32_t objectInstance, 
+    const uint8_t toOffNormalPriority, const uint8_t toFaultPriority, const uint8_t toNormalPriority, 
+    const bool toOffNormalAckRequired, const bool toFaultAckRequired, const bool toNormalAckRequired)
+```
+
+- **deviceInstance** [in] - The instance number of the device that owns this Notification Class Object.
+- **objectInstance** [in] - The instance number of this Notification Class Object.
+- **toOffNormalPriority** [in] - The priority for To_OffNormal events. Values are 0-255.
+- **toFaultPriority** [in] - The priority for To_Fault events. Values are 0-255.
+- **toNormalPriority** [in] - The priority for To_Normal events. Values are 0-255
+- **toOffNormalAckRequired** [in] - Whether the To_OffNormal events must be acknowledged (true) or not (false);
+- **toFaultAckRequired** [in] - Whether the To_Fault events must be acknowledged (true) or not (false);
+- **toNormalAckRequired** [in] - Whether the To_Normal events must be acknowledged (true) or not (false);
+
+### AddRecipientToNotificationClass
+
+Once the Notification Class object has been created, the next step is to add a recipient to the Notification Class.
+A recipient is the BACnet Device that will receive the notifications as well as the days and times that it can receive them.
+
+This gets added to an existing Notification Class Object, therefore, a Notification Class Object must exist
+before this function can be called.
+
+```c++
+bool BACnetStack_AddRecipientToNotificationClass(
+    const uint32_t deviceInstance, const uint32_t notificationClassInstance, const uint8_t validDays, 
+    const uint8_t fromTimeHour, const uint8_t fromTimeMinute, const uint8_t fromTimeSecond, const uint8_t fromTimeHundrethSecond, 
+    const uint8_t toTimeHour, const uint8_t toTimeMinute, const uint8_t toTimeSecond, const uint8_t toTimeHundrethSecond, 
+    const uint32_t processIdentifier, const bool issueConfirmedNotifications, 
+    const bool transitionToOffNormal, const bool transitionToFault, const bool transitionToNormal, 
+    const bool useRecipientDeviceChoice, const uint32_t recipientDeviceInstance, 
+    const bool useRecipientAddressChoice, const uint16_t recipientNetworkNumber, const uint8_t* recipientMacAddress, const uint32_t recipientMacAddressLength);
+```
+
+- **deviceInstance** [in] - The instance number of the device that owns the Notification Class Object.
+- **notificationClassInstance** [in] - The instance number of the Notification Class Object to add this recipient to.
+- **validDays** [in] - A byte that represents each of the valid days that this recipient can receive notifications. Bit 0 = Monday, Bit 7 = Sunday. For all days set to 127 or 0x7F.
+- **fromTimeHour** [in] - The hour value of the start time that this recipient can receive notifications. Default: 0
+- **fromTimeMinute** [in] - The minute value of the start time that this recipient can receive notifications. Default: 0
+- **fromTimeSecond** [in] - The second value of the start time that this recipient can receive notifications. Default: 0
+- **fromTimeHundrethSecond** [in] - The hundreth-second value of the start time that this recipient can receive notifications. Default: 0
+- **toTimeHour** [in] - The hour value of the end time that this recipient can receive notifications. Default: 23
+- **toTimeMinute** [in] - The minute value of the end time that this recipient can receive notifications. Default: 59
+- **toTimeSecond** [in] - The second value of the end time that this recipient can receive notifications. Default: 59
+- **toTimeHundrethSecond** [in] - The hundreth second value of the end time that this recipient can receive notifications. Default: 99
+- **processIdentifier** [in] - The handle of a process within the recipient device that is to receive the event notifications.
+- **issueConfirmedNotifications** [in] - Whether to send confirmed notifications (true) or unconfirmed notifications (false).
+- **transitionToOffNormal** [in] - Whether this recipient should be sent To_OffNormal events (true) or not (false).
+- **transitionToFault** [in] - Whether this recipient should be sent To_Fault events (true) or not (false).
+- **transitionToNormal** [in] - Whether this recipient should be sent To_Normal events (true) or not (false).
+- **useRecipientDeviceChoice** [in] - Whether this recipient is a Device Identifier (true) or not (false). Only useRecipientDeviceChoice or useRecipientAddressChoice may be true, not both. Currently disabled.
+- **recipientDeviceInstance** [in] - If the recipient is a Device Identifier, this is the device instance of the recipient. Currently disabled.
+- **useRecipientAddressChoice** [in] - Whether this recipient is an Address (true) or not (false). Only useRecipientDeviceChoice or useRecipientAddressChoice may be true, not both.
+- **recipientNetworkNumber** [in] - If the recipient is an Address, this is the network number of the recipient.  0 = local network.
+- **recipientMacAddress** [in] - The BACnet MAC Address of the recipient. If BACnet IP, this is the 6-octet byte representation of the IP Address and Port of the device.
+- **recipientMacAddressLength** [in] - The number of bytes of the macAddress.  If BACnet IP, this should be 6.
+
+### EnableAlarmsAndEventsForObject
+
+After at least one recipient has been added, it is time to enable alarms and events for each object that will support intrinsic alarming.
+To start this process, call the EnableAlarmsAndEventsForObject function to setup some preliminary alarm and event settings.
+
+The object and the notification class object must exist before calling this function, otherwise the function will return false.
+
+```c++
+bool BACnetStack_EnableAlarmsAndEventsForObject(
+    const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const uint32_t notificationClassInstance, 
+    const uint8_t notifyType, const bool enableToOffNormalEvent, const bool enableToFaultEvent, const bool enableToNormalEvent, const bool enableEventDetection)
+```
+
+- **deviceInstance** [in] - The instance number of the device that owns this object.
+- **objectType** [in] - The object type of the object for alarms and events.
+- **objectType** [in] - The object instance of the object for alarms and events.
+- **notificationClassInstance** [in] - The instance number of the notification class object that will handle the event notifications generated by this object.
+- **notifyType** [in] - The type of notifications that this object generates. 0 = Alarm, 1 = Event.
+- **enableToOffNormalEvent** [in] - Whether the To_OffNormal event is enabled (true) or not (false). Default: true.
+- **enableToFaultEvent** [in] - Whether the To_Fault event is enabled (true) or not (false). Default: true.
+- **enableToNormalEvent** [in] - Whether the To_Normal event is enabled (true) or not (false). Default: true.
+- **enableEventDetection** [in] - Whether event detection is enabled (true) or not (false). Default: true
+
+### Set up the intrinsic event and fault algorithms
+
+After alarms and events have been enabled on the object, enable either the intrinsic event algorithm or the instric fault algorithm or both.
+The type of event or fault algorithm to use intrinsically will be determined by the ObjectType.  
+Since this example only uses Lifts and Escalators, then they will use the following algorithms:
+- Event Algorithm:  ChangeOfState monitoring the PassengerAlarms property
+- Fault Algorithm:  FaultsListed monitoring the FaultSignals property
+
+For other intrinsic algorithm/object combinations, please refer to the CAS BACnet Stack - Alarms and Events pdf manual.
+
+To enable these algorithm, use the functions described below:
+
+#### SetIntrinsicChangeOfStateAlgorithmBool
+
+To enable the intrinsic ChangeOfState event algorithm, use the following function.
+Note: the object must exist first and must have called the EnableAlarmsAndEventsForObject function before calling this one.
+
+```c++
+bool BACnetStack_SetIntrinsicChangeOfStateAlgorithmBool(
+    const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const bool alarmValue, 
+    const uint32_t timeDelay, const bool useTimeDelayNormal, const uint32_t timeDelayNormal, const bool enable)
+```
+
+- **deviceInstance** [in] - The instance number of the device that owns this object.
+- **objectType** [in] - The object type of the object for alarms and events.
+- **objectType** [in] - The object instance of the object for alarms and events.
+- **alarmValue** [in] - What the alarm value is
+- **timeDelay** [in] - The time in seconds that the offnormal conditions must exist before an offnormal event state is indicated.
+- **useTimeDelayNormal** [in] - Whether to use a different time delay value for the timeDelayNormal, or just use the timeDelay value.
+- **timeDelayNormal** [in] - The time in seconds that the Normal conditions must exist before a normal event state is indicated.
+- **enable** [in] - Whether to enable (true) or disable (false) this algorithm. Default: true
+
+#### SetFaultOutOfRangeAlgorithmReal
+
+To enable the intrinsic FaultsListed fault algorithm, use the following function.
+Note: the object must exist first and must have called the EnableAlarmsAndEventsForObject function before calling this one.
+
+```c++
+bool BACnetStack_SetFaultOutOfRangeAlgorithmReal(
+    const uint32_t deviceInstance, const uint16_t objectType, const uint32_t objectInstance, const float faultLowLimit, const float faultHighLimit, const bool enable)
+```
+
+- **deviceInstance** [in] - The instance number of the device that owns this object.
+- **objectType** [in] - The object type of the object for alarms and events.
+- **objectType** [in] - The object instance of the object for alarms and events.
+- **enable** [in] - Whether to enable (true) or disable (false) this algorithm. Default: true
+
+### Alarms and Events Callbacks
+
+Some alarm and event functionality requires callback functions.  
+As of version 3.26.0 of the CAS BACnet Stack, the only Alarm and Event service that can use a callback is the following:
+- AcknowledgeAlarm
+
+#### CallbackAcknowledgeAlarm
+
+The CallbackAcknowledgeAlarm function is a callback function that a user implement and registers with the CAS BACnet Stack to 
+authorize alarm acknowledges and to log them.  This callback is called when the CAS BACnet Stack receives an AcknowledgeAlarm BACnet message.
+
+The primary use of this callback is to validate acknowledgement source, to determine if it is authorized to acknowledge alarms.  Users
+can also use this callback to log the acknowledges. 
+
+```c++
+bool(*FPCallbackAcknowledgeAlarm) (
+    const uint32_t deviceInstance,
+    const uint32_t acknowledgingProcessIdentifier,
+    const uint16_t eventObjectType,
+    const uint32_t eventObjectInstance,
+    const uint16_t eventStateAcknowledged,
+    const uint8_t eventTimeStampYear,
+    const uint8_t eventTimeStampMonth,
+    const uint8_t eventTimeStampDay,
+    const uint8_t eventTimeStampWeekday,
+    const uint8_t eventTimeStampHour,
+    const uint8_t eventTimeStampMinute,
+    const uint8_t eventTimeStampSecond,
+    const uint8_t eventTimeStampHundrethSecond,
+    const char* acknowledgementSource,
+    const uint32_t acknowledgementSourceLength,
+    const uint8_t acknowledgementSourceEncoding,
+    const bool timeOfAcknowledgementIsTime,
+    const bool timeOfAcknowledgementIsSequenceNumber,
+    const bool timeOfAcknowledgementIsDateTime,
+    const uint8_t timeOfAcknowledgementYear,
+    const uint8_t timeOfAcknowledgementMonth,
+    const uint8_t timeOfAcknowledgementDay,
+    const uint8_t timeOfAcknowledgementWeekday,
+    const uint8_t timeOfAcknowledgementHour,
+    const uint8_t timeOfAcknowledgementMinute,
+    const uint8_t timeOfAcknowledgementSecond,
+    const uint8_t timeOfAcknowledgementHundrethSecond,
+    const uint16_t timeOfAcknowledgementSequenceNumber,
+    uint32_t * errorCode)
+```
+
+- **deviceInstance** [in] - The BACnet device instance receiving the AcknowledgeAlarm request.
+- **acknowledgingProcessIdentifier** [in] - The acknowledging process.
+- **eventObjectType** [in] - The type of the object that created the event notification being acknowledged.
+- **eventObjectInstance** [in] - The instance of the object that created the event notification being acknowledged.
+- **eventStateAcknowledged** [in] - The event state of the event notification being acknowledged.
+- **eventTimeStampYear** [in] - The year of the timestamp of the event notification being acknowledged.
+- **eventTimeStampMonth** [in] - The month of the timestamp of the event notification being acknowledged.
+- **eventTimeStampDay** [in] - The day of the timestamp of the event notification being acknowledged.
+- **eventTimeStampWeekday** [in] - The weekday of the timestamp of the event notification being acknowledged.
+- **eventTimeStampHour** [in] - The hour of the timestamp of the event notification being acknowledged.
+- **eventTimeStampMinute** [in] - The minute of the timestamp of the event notification being acknowledged.
+- **eventTimeStampSecond** [in] - The second of the timestamp of the event notification being acknowledged.
+- **eventTimeStampHundrethSecond** [in] - The hundtreth second of the timestamp of the event notification being acknowledged.
+- **acknowledgementSource** [in] - The identity of the operator or process that is acknowledging the event.
+- **acknowledgementSourceLength** [in] - The length of the acknowledgement source.
+- **acknowledgementSourceEncoding** [in] - The encoding of the acknowledgment source.
+- **timeOfAcknowledgementIsTime** [in] - A flag that specifies that the user is acknowledging the event using a Time for the Time of Acknowledgement. Uses the timeOfAcknowledgementHour, timeOfAcknowledgementMinute, timeOfAcknowledgementSecond, timeOfAcknowledgementHundrethSecond parameters. All others will be ignored.
+- **timeOfAcknowledgementIsSequenceNumber** [in] - A flag that specifies that the user is acknowledging the event using a SequenceNumber for the Time of Acknowledgement. Uses the timeOfAcknowledgementSequenceNumber parameter. All others will be ignored.
+- **timeOfAcknowledgementIsDateTime** [in] - A flag that specifies that the user is acknowledging the event using a Time for the Time of Acknowledgement. Uses the timeOfAcknowledgementYear, timeOfAcknowledgementMonth, timeOfAcknowledgementDay, timeOfAcknowledgementHour, timeOfAcknowledgementWeekday, timeOfAcknowledgementMinute, timeOfAcknowledgementSecond, timeOfAcknowledgementHundrethSecond parameters. All others will be ignored.
+- **timeOfAcknowledgementYear** [in] - The year of the Time of Acknowledgement if it is a DateTime.
+- **timeOfAcknowledgementMonth** [in] - The month of the Time of Acknowledgement if it is a DateTime.
+- **timeOfAcknowledgementDay** [in] - The day of the Time of Acknowledgement if it is a DateTime.
+- **timeOfAcknowledgementWeekday** [in] - The weekday of the Time of Acknowledgement if it is a DateTime.
+- **timeOfAcknowledgementHour** [in] - The hour of the Time of Acknowledgement if it is a DateTime or Time.
+- **timeOfAcknowledgementMinute** [in] - The minute of the Time of Acknowledgement if it is a DateTime or Time.
+- **timeOfAcknowledgementSecond** [in] - The second of the Time of Acknowledgement if it is a DateTime or Time.
+- **timeOfAcknowledgementHundrethSecond** [in] - The hundrethSecond of the Time of Acknowledgement if it is a DateTime or Time.
+- **timeOfAcknowledgementSequenceNumber** [in] - The sequence number of the Time of Acknowledgement if it is a SequenceNumber.
+- **errorCode** [out] - The error that a user sets in the callback if the AcknowledgeAlarm fails.  Usually will be SERVICE_REQUEST_DENIED (29)
+
+#### RegisterCallbackAcknowledgeAlarm
+
+To register the CallbackAcknowledgeAlarm, use the following function:
+
+```c++
+void BACnetStack_RegisterCallbackAcknowledgeAlarm(bool(*FPCallbackAcknowledgeAlarm))
+```
+
+- **FPCallbackAcknowledgeAlarm** [in] - The function pointer for the CallbackAcknowledgeAlarm function.  See #CASBACnetStack::FPCallbackAcknowledgeAlarm for more info.
+
 ## Enumerations
 
 Enumerations used by the Elevator groups, Lift, Escalator object types properties.
