@@ -2,6 +2,11 @@
 
 ## Version 0.0.x
 
+### 0.0.7 (2022-Aug-26)
+
+- Added SubscribeCOVPropertyMultiple
+- Added SetCOVSettings
+
 ### 0.0.6 (2021-Dec-22)
 
 - Updated to CAS BACnet Stack Version 3.26.0

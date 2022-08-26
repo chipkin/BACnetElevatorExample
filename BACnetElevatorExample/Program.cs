@@ -43,7 +43,7 @@ namespace BACnetElevatorExample
             private ExampleDatabase database = new ExampleDatabase();
 
             // Version 
-            const string APPLICATION_VERSION = "0.0.5";
+            const string APPLICATION_VERSION = "0.0.7";
 
             public void Run()
             {
@@ -93,6 +93,10 @@ namespace BACnetElevatorExample
                 CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_SUBSCRIBE_COV_PROPERTY, true);
                 CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_ACKNOWLEDGE_ALARM, true);
                 CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_GET_EVENT_INFORMATION, true);
+                CASBACnetStackAdapter.SetServiceEnabled(database.device.instance, CASBACnetStackAdapter.SERVICES_SUPPORTED_SUBSCRIBE_COV_PROPERTY_MULTIPLE, true);
+
+                // COV Settings
+                CASBACnetStackAdapter.SetCOVSettings(database.device.instance, ExampleDatabase.MAX_ACTIVE_COV_SUBSCRIPTIONS, ExampleDatabase.MAX_COV_LIFETIME);
 
                 // ESCALATOR Group 
                 CASBACnetStackAdapter.AddElevatorGroupObject(database.device.instance, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_INSTANCE, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_MACHINE_ROOM_ID, ExampleDatabase.SETTING_ELEVATOR_GROUP_OF_ESCALATOR_GROUP_ID, false, false);
