@@ -148,6 +148,9 @@ namespace BACnetElevatorExample
 
     class ExampleDatabase
     {
+        public static UInt32 MAX_ACTIVE_COV_SUBSCRIPTIONS = 25;
+        public static UInt32 MAX_COV_LIFETIME = 28800; // 8 hours
+
         public BACnetDeviceObject device;
 
         // Description of system. 
