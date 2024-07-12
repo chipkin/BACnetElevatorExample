@@ -3,6 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <Description>CAS BACnet Stack Elevator Example</Description>
+    <Copyright>Chipkin Automation Systems 2020</Copyright>
+    <PackageProjectUrl>https://github.com/chipkin/BACnetElevatorExample</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/chipkin/BACnetElevatorExample</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>bacnet </PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -20,6 +27,13 @@
 
   <ItemGroup>
     <Compile Include="..\submodules\cas-bacnet-stack\adapters\csharp\CASBACnetStackAdapter.cs" Link="CASBACnetStackAdapter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

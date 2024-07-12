@@ -26,3 +26,5 @@ BACnetElevatorExample/libCASBACnetStack_x64_Release.so
 BACnetElevatorExample/Properties/PublishProfiles/FolderProfile.pubxml
 
 BACnetElevatorExample/Properties/PublishProfiles/FolderProfile.pubxml.user
+
+submodules
