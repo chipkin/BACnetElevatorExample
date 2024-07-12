@@ -19,6 +19,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
+using static CASBACnetStack.CASBACnetStackAdapter;
 
 namespace BACnetElevatorExample
 {
@@ -43,7 +44,25 @@ namespace BACnetElevatorExample
             private ExampleDatabase database = new ExampleDatabase();
 
             // Version 
-            const string APPLICATION_VERSION = "0.0.7";
+            const string APPLICATION_VERSION = "0.0.8";
+
+            // Prevent the callback functions from being garbage collected
+            private CASBACnetStackAdapter.delegateRecvMessage _delegateCallbackRecvMessage;
+            private CASBACnetStackAdapter.delegateSendMessage _delegateCallbackSendMessage;            
+            private CASBACnetStackAdapter.delegateCallbackGetSystemTime _delegateCallbackGetSystemTime;
+            private CASBACnetStackAdapter.delegateCallbackGetPropertyCharString _delegateCallbackGetPropertyCharacterString;
+            private CASBACnetStackAdapter.delegateCallbackGetPropertyReal _delegateCallbackGetPropertyReal;
+            private CASBACnetStackAdapter.delegateCallbackGetEnumerated _delegateCallbackGetPropertyEnumerated;
+            private CASBACnetStackAdapter.delegateCallbackGetPropertyUnsignedInteger _delegateCallbackGetPropertyUnsignedInteger;
+            private CASBACnetStackAdapter.delegateCallbackGetPropertyBool _delegateCallbackGetPropertyBool;
+            private CASBACnetStackAdapter.delegateCallbackGetListOfEnumerations _delegateCallbackGetListOfEnumerations;
+            private CASBACnetStackAdapter.delegateCallbackGetListElevatorGroupLandingCallStatus _delegateCallbackGetListElevatorGroupLandingCallStatus;
+            private CASBACnetStackAdapter.delegateCallbackGetSequenceLiftAssignedLandingCall _delegateCallbackGetSequenceLiftAssignedLandingCall;
+            private CASBACnetStackAdapter.delegateCallbackGetSequenceLiftRegisteredCarCall _delegateCallbackGetSequenceLiftRegisteredCarCall;
+            private CASBACnetStackAdapter.delegateCallbackGetSequenceLiftLandingDoorStatus _delegateCallbackGetSequenceLiftLandingDoorStatus;
+            private CASBACnetStackAdapter.delegateCallbackSetPropertyUnsignedInteger _delegateCallbackSetPropertyUnsignedInteger;
+            private CASBACnetStackAdapter.delegateCallbackSetElevatorGroupLandingCallControl _delegateCallbackSetElevatorGroupLandingCallControl;
+            private CASBACnetStackAdapter.delegateCallbackAcknowledgeAlarm _delegateCallbackAcknowledgeAlarm;
 
             public void Run()
             {
@@ -58,29 +77,48 @@ namespace BACnetElevatorExample
                     CASBACnetStackAdapter.GetAPIPatchVersion(),
                     CASBACnetStackAdapter.GetAPIBuildVersion());
 
+
+                // Prevent the callback functions from being garbage collected
+                this._delegateCallbackRecvMessage = new CASBACnetStackAdapter.delegateRecvMessage(RecvMessage);
+                this._delegateCallbackSendMessage = new CASBACnetStackAdapter.delegateSendMessage(SendMessage);
+                this._delegateCallbackGetSystemTime = new CASBACnetStackAdapter.delegateCallbackGetSystemTime(CallbackGetSystemTime);
+                this._delegateCallbackGetPropertyCharacterString = new CASBACnetStackAdapter.delegateCallbackGetPropertyCharString(CallbackGetPropertyCharString);
+                this._delegateCallbackGetPropertyReal = new CASBACnetStackAdapter.delegateCallbackGetPropertyReal(CallbackGetPropertyReal);
+                this._delegateCallbackGetPropertyEnumerated = new CASBACnetStackAdapter.delegateCallbackGetEnumerated(CallbackGetPropertyEnumerated);
+                this._delegateCallbackGetPropertyUnsignedInteger = new CASBACnetStackAdapter.delegateCallbackGetPropertyUnsignedInteger(CallbackGetPropertyUnsignedInteger);
+                this._delegateCallbackGetPropertyBool = new CASBACnetStackAdapter.delegateCallbackGetPropertyBool(CallbackGetPropertyBool);
+                this._delegateCallbackGetListOfEnumerations = new CASBACnetStackAdapter.delegateCallbackGetListOfEnumerations(CallbackGetListOfEnumerations);
+                this._delegateCallbackGetListElevatorGroupLandingCallStatus = new CASBACnetStackAdapter.delegateCallbackGetListElevatorGroupLandingCallStatus(CallbackGetListElevatorGroupLandingCallStatus);
+                this._delegateCallbackGetSequenceLiftAssignedLandingCall = new CASBACnetStackAdapter.delegateCallbackGetSequenceLiftAssignedLandingCall(CallbackGetSequenceLiftAssignedLandingCall);
+                this._delegateCallbackGetSequenceLiftRegisteredCarCall = new CASBACnetStackAdapter.delegateCallbackGetSequenceLiftRegisteredCarCall(CallbackGetSequenceLiftRegisteredCarCall);
+                this._delegateCallbackGetSequenceLiftLandingDoorStatus = new CASBACnetStackAdapter.delegateCallbackGetSequenceLiftLandingDoorStatus(CallbackGetSequenceLiftLandingDoorStatus);
+                this._delegateCallbackSetPropertyUnsignedInteger = new CASBACnetStackAdapter.delegateCallbackSetPropertyUnsignedInteger(CallbackSetPropertyUnsignedInteger);
+                this._delegateCallbackSetElevatorGroupLandingCallControl = new CASBACnetStackAdapter.delegateCallbackSetElevatorGroupLandingCallControl(CallbackSetElevatorGroupLandingCallControl);
+                this._delegateCallbackAcknowledgeAlarm = new CASBACnetStackAdapter.delegateCallbackAcknowledgeAlarm(CallbackAcknowledgeAlarm);
+
                 // Send/Recv callbacks. 
-                CASBACnetStackAdapter.RegisterCallbackSendMessage(SendMessage);
-                CASBACnetStackAdapter.RegisterCallbackReceiveMessage(RecvMessage);
-                CASBACnetStackAdapter.RegisterCallbackGetSystemTime(CallbackGetSystemTime);
+                CASBACnetStackAdapter.RegisterCallbackReceiveMessage(this._delegateCallbackRecvMessage);
+                CASBACnetStackAdapter.RegisterCallbackSendMessage(this._delegateCallbackSendMessage);
+                CASBACnetStackAdapter.RegisterCallbackGetSystemTime(this._delegateCallbackGetSystemTime);
 
                 // Get Datatype Callbacks 
-                CASBACnetStackAdapter.RegisterCallbackGetPropertyCharacterString(CallbackGetPropertyCharString);
-                CASBACnetStackAdapter.RegisterCallbackGetPropertyReal(CallbackGetPropertyReal);
-                CASBACnetStackAdapter.RegisterCallbackGetPropertyEnumerated(CallbackGetEnumerated);
-                CASBACnetStackAdapter.RegisterCallbackGetPropertyUnsignedInteger(CallbackGetUnsignedInteger);
-                CASBACnetStackAdapter.RegisterCallbackGetPropertyBool(CallbackGetPropertyBool);
-                CASBACnetStackAdapter.RegisterCallbackGetListOfEnumerations(CallbackGetListOfEnumerations);
-                CASBACnetStackAdapter.RegisterCallbackGetListElevatorGroupLandingCallStatus(CallbackGetListElevatorGroupLandingCallStatus);
-                CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftAssignedLandingCall(CallbackGetSequenceLiftAssignedLandingCall);
-                CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftRegisteredCarCall(CallbackGetSequenceLiftRegisteredCarCall);
-                CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftLandingDoorStatus(CallbackGetSequenceLiftLandingDoorStatus);
+                CASBACnetStackAdapter.RegisterCallbackGetPropertyCharacterString(this._delegateCallbackGetPropertyCharacterString);
+                CASBACnetStackAdapter.RegisterCallbackGetPropertyReal(this._delegateCallbackGetPropertyReal);
+                CASBACnetStackAdapter.RegisterCallbackGetPropertyEnumerated(this._delegateCallbackGetPropertyEnumerated);
+                CASBACnetStackAdapter.RegisterCallbackGetPropertyUnsignedInteger(this._delegateCallbackGetPropertyUnsignedInteger);
+                CASBACnetStackAdapter.RegisterCallbackGetPropertyBool(this._delegateCallbackGetPropertyBool);
+                CASBACnetStackAdapter.RegisterCallbackGetListOfEnumerations(this._delegateCallbackGetListOfEnumerations);
+                CASBACnetStackAdapter.RegisterCallbackGetListElevatorGroupLandingCallStatus(this._delegateCallbackGetListElevatorGroupLandingCallStatus);
+                CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftAssignedLandingCall(this._delegateCallbackGetSequenceLiftAssignedLandingCall);
+                CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftRegisteredCarCall(this._delegateCallbackGetSequenceLiftRegisteredCarCall);
+                CASBACnetStackAdapter.RegisterCallbackGetSequenceLiftLandingDoorStatus(this._delegateCallbackGetSequenceLiftLandingDoorStatus);
 
                 // Set Datatype Callbacks 
-                CASBACnetStackAdapter.RegisterCallbackSetPropertyUnsignedInteger(CallbackSetUnsignedInteger);
-                CASBACnetStackAdapter.RegisterCallbackSetElevatorGroupLandingCallControl(CallbackSetElevatorGroupLandingCallControl);
+                CASBACnetStackAdapter.RegisterCallbackSetPropertyUnsignedInteger(this._delegateCallbackSetPropertyUnsignedInteger);
+                CASBACnetStackAdapter.RegisterCallbackSetElevatorGroupLandingCallControl(this._delegateCallbackSetElevatorGroupLandingCallControl);
 
                 // Service Callbacks
-                CASBACnetStackAdapter.RegisterCallbackAcknowledgeAlarm(CallbackAcknowledgeAlarm);
+                CASBACnetStackAdapter.RegisterCallbackAcknowledgeAlarm(this._delegateCallbackAcknowledgeAlarm);
 
                 // Add the device. 
                 CASBACnetStackAdapter.AddDevice(database.device.instance);
@@ -703,7 +741,7 @@ namespace BACnetElevatorExample
                 Console.WriteLine("   FYI: Not implemented. propertyIdentifier={0}", propertyIdentifier);
                 return false;
             }
-            public bool CallbackGetEnumerated(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, UInt32* value, bool useArrayIndex, UInt32 propertyArrayIndex)
+            public bool CallbackGetPropertyEnumerated(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, UInt32* value, bool useArrayIndex, UInt32 propertyArrayIndex)
             {
                 Console.WriteLine("FYI: Request for CallbackGetEnumerated. objectType={0}, objectInstance={1}, propertyIdentifier={2}", objectType, objectInstance, propertyIdentifier);
 
@@ -760,7 +798,8 @@ namespace BACnetElevatorExample
                 return false;
             }
 
-            public bool CallbackGetUnsignedInteger(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, UInt32* value, bool useArrayIndex, UInt32 propertyArrayIndex)
+            
+            public bool CallbackGetPropertyUnsignedInteger(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, UInt32* value, bool useArrayIndex, UInt32 propertyArrayIndex)
             {
                 Console.WriteLine("FYI: Request for CallbackGetUnsignedInteger. objectType={0}, objectInstance={1}, propertyIdentifier={2}, propertyArrayIndex={3}", objectType, objectInstance, propertyIdentifier, propertyArrayIndex);
 
@@ -1007,7 +1046,7 @@ namespace BACnetElevatorExample
 
 
 
-            public bool CallbackSetUnsignedInteger(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, UInt32 value, bool useArrayIndex, UInt32 propertyArrayIndex, System.Byte priority, UInt32* errorCode)
+            public bool CallbackSetPropertyUnsignedInteger(UInt32 deviceInstance, UInt16 objectType, UInt32 objectInstance, UInt32 propertyIdentifier, UInt32 value, bool useArrayIndex, UInt32 propertyArrayIndex, System.Byte priority, UInt32* errorCode)
             {
                 Console.WriteLine("FYI: Request for CallbackSetUnsignedInteger. objectType={0}, objectInstance={1}, propertyIdentifier={2}, propertyArrayIndex={3}, value={4}, priority={5}", objectType, objectInstance, propertyIdentifier, propertyArrayIndex, value, priority);
 
